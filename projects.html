@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projects and tools | Hai (David) Guo</title>
+  <meta name="description" content="The Fiscal Shocker, an interactive taxpayer receipt for Wichita Public Schools, and the Florida Property Tax Study.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Besley:ital,wght@0,500..900;1,500&family=Public+Sans:wght@400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="assets/site.css?v=602ceee3">
+  <script>
+    /* ?theme=light or ?theme=dark pins the page; otherwise it follows the visitor's device */
+    (function () { try { var t = new URLSearchParams(location.search).get('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
+</head>
+<body>
+
+<header class="col top">
+  <a class="brand" href="index.html">Hai (David) Guo</a>
+  <nav aria-label="Pages">
+    <a href="research.html">Research</a>
+    <a href="projects.html" aria-current="page">Projects</a>
+    <a href="publications.html">Publications</a>
+    <a href="service.html">Service</a>
+    <a href="teaching.html">Teaching</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<main>
+<div class="col sheet">
+  <section class="entry first" aria-labelledby="page-h">
+    <div class="margin"><p class="label">Projects</p></div>
+    <div class="body">
+      <h1 class="page-title" id="page-h">Projects and tools</h1>
+      <p class="lede">
+        Interactive tools and commissioned studies. Each one puts public finance data in front of
+        the officials and residents who have to act on it.
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- ================= Fiscal Shocker ================= -->
+<section class="shocker" id="fiscal-shocker" aria-labelledby="shocker-h">
+  <div class="col">
+    <div>
+      <p class="kicker">Interactive tool &middot; Kansas Public Finance Center</p>
+      <h2 id="shocker-h">Fiscal <mark>Shocker</mark></h2>
+      <p>
+        An interactive tool that compares the fiscal health, revenue structure, and spending
+        priorities of local governments across Kansas. It standardizes key financial indicators,
+        such as property tax reliance, so that one jurisdiction can be read against another.
+      </p>
+      <p>
+        The tool is meant for policymakers, researchers, and engaged residents who need local
+        government finances to be clear and comparable.
+      </p>
+      <a class="cta-solid" href="https://www.wichita.edu/academics/fairmount_las/hugowall/kpfc/Fiscal-Shocker/index.php">Open the Fiscal Shocker <span aria-hidden="true">&rarr;</span></a>
+      <p class="meta">A tool of the <a href="https://www.wichita.edu/academics/fairmount_las/hugowall/kpfc/index.php">Kansas Public Finance Center</a> at Wichita State University.</p>
+    </div>
+    <nav class="cats" aria-label="Fiscal Shocker categories">
+      <p class="cap">Choose a category</p>
+      <a href="https://www.wichita.edu/academics/fairmount_las/hugowall/kpfc/Fiscal-Shocker/fiscal-shocker-first-class-cities-financial-condition-indicators.php">First Class Cities Financial Condition Indicators <span aria-hidden="true">&rarr;</span></a>
+      <a href="https://www.wichita.edu/academics/fairmount_las/hugowall/kpfc/Fiscal-Shocker/fiscal-shocker-local-government-mill-levy.php">Local Government Mill Levy <span aria-hidden="true">&rarr;</span></a>
+      <a href="https://www.wichita.edu/academics/fairmount_las/hugowall/kpfc/Fiscal-Shocker/fiscal-shocker-local-government-revenue-structure.php">Local Government Revenue Structure <span aria-hidden="true">&rarr;</span></a>
+    </nav>
+  </div>
+</section>
+
+<!-- ================= property tax tool ================= -->
+<section class="feature" id="property-tax" aria-labelledby="feature-h">
+  <div class="col">
+    <div>
+      <p class="kicker">Interactive tool &middot; taxpayer receipt</p>
+      <h2 id="feature-h">What your property tax pays for</h2>
+      <p>
+        An interactive taxpayer receipt for Wichita Public Schools (USD&nbsp;259). A resident enters
+        the appraised value of a home and sees the school district property tax it owes and the
+        services that tax pays for, levy by levy.
+      </p>
+      <p>
+        The Kansas homestead exemption applies to the 20-mill general levy only, so a single
+        multiplier gets every bill wrong. The tool computes each levy separately, and the
+        estimate holds at every home value.
+      </p>
+      <a class="cta" href="tools/what-your-property-tax-pays-for/index.html">Open the tool <span aria-hidden="true">&rarr;</span></a>
+      <p class="meta">Data: USD&nbsp;259 budget documents, 2026&ndash;27. Developed from a budget simulation project with the district.</p>
+    </div>
+    <div class="still" aria-label="A still from the tool, showing its example home">
+      <span class="tag">Example</span>
+      <p class="cap">Annual school district tax, $200,000 home</p>
+      <div class="amount">$1,009.70</div>
+      <ul>
+        <li><span>Special Education Services</span><b>$183.30</b><span class="bar" aria-hidden="true"><i style="flex:53.19"></i><i style="flex:130.11"></i></span></li>
+        <li><span>Teachers, Paras, Classroom Costs</span><b>$143.93</b><span class="bar" aria-hidden="true" style="width:78.5%"><i style="flex:66.13"></i><i style="flex:77.80"></i></span></li>
+        <li><span>Education Supports &ndash; At-Risk Students</span><b>$142.65</b><span class="bar" aria-hidden="true" style="width:77.8%"><i style="flex:67.56"></i><i style="flex:75.09"></i></span></li>
+      </ul>
+      <p class="fine">Three of 22 services. Bar colors: General Fund levy, then Supplemental General (LOB).</p>
+    </div>
+  </div>
+</section>
+<div class="feature-edge" aria-hidden="true"></div>
+
+<!-- ================= commissioned studies ================= -->
+<div class="col sheet">
+  <section class="entry" aria-labelledby="studies-h">
+    <div class="margin" id="florida"><p class="label">Studies</p></div>
+    <div class="body">
+      <h2 id="studies-h">Commissioned studies</h2>
+      <ul class="items">
+        <li><span class="when">2025</span><span class="what">
+          <a class="t" href="https://www.flcities.com/propertytaxstudy/">Florida Property Tax Study</a>
+          <span class="by">Commissioned by the Florida League of Cities &middot; conducted at Wichita State University</span>
+          <span class="d">
+            Florida is debating changes to the homestead property tax. The study examines the
+            fiscal, distributional, and community-level impacts of the concepts under discussion,
+            and what they would mean for the revenue structure of Florida municipalities. The full
+            report is Guo and Cheng (2025), <i>Fiscal Structure and Revenue Resilience of Florida
+            Municipalities</i>.
+          </span>
+          <span class="linkrow">
+            <a href="https://www.flcities.com/propertytaxstudy/">Study page at the Florida League of Cities</a>
+            <a href="https://www.flcities.com/wp-content/uploads/2025/12/Florida-Homestead-Study-Summary-of-Findings.pdf">Summary of key findings (PDF)</a>
+            <a href="https://www.flcities.com/wp-content/uploads/2025/12/Fiscal-Structure-and-Revenue-Resilience-of-Florida-Municipalities.pdf">Full report (PDF)</a>
+          </span></span></li>
+      </ul>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer class="col foot">
+  <span>&copy; 2026 Hai (David) Guo</span>
+  <span>Wichita, Kansas</span>
+</footer>
+
+</body>
+</html>

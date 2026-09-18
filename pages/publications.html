@@ -1,0 +1,28 @@
+<div class="col sheet">
+  <section class="entry first" aria-labelledby="page-h">
+    <div class="margin"><p class="label">Publications</p></div>
+    <div class="body">
+      <h1 class="page-title" id="page-h">Publications</h1>
+      <p class="lede">
+        The list follows the curriculum vitae. Citation counts and newer working papers are on
+        <a href="{{SCHOLAR}}">Google Scholar</a>, and the full record, including conference
+        presentations, is in the <a href="assets/cv-hai-david-guo.pdf">curriculum vitae (PDF)</a>.
+      </p>
+
+      <h2 class="group-h">Peer-reviewed articles <span class="count">{{N_ARTICLES}}</span></h2>
+      <ol class="items">
+{{ARTICLES}}
+      </ol>
+
+      <h2 class="group-h">Book</h2>
+      <ul class="items">
+{{BOOK}}
+      </ul>
+
+      <h2 class="group-h">Reports and other writing <span class="count">{{N_OTHER}}</span></h2>
+      <ul class="items">
+{{OTHER}}
+      </ul>
+    </div>
+  </section>
+</div>

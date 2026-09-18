@@ -1,0 +1,1180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Estimate the Wichita Public Schools (USD 259) property tax on a home and see how it is spent, by budget function and by mill levy.">
+  <title>What your property tax pays for | Hai (David) Guo</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Besley:wght@500..900&family=Public+Sans:wght@400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  
+  <style>
+  /* ---------- tokens: light is the base, both dark scopes redefine only these ----------
+     A3. One slate band carries the whole conversation -- question, question, answer -- and
+     ends in a torn receipt edge; below it the page is plain paper: no cards, hairline rules.
+     Colors follow usd259.org (crimson #BA0C2F, slate teal #244C5A); the levy palette is the
+     one validated for colorblind separation on white and on the dark surface #1A1F22. */
+  :root {
+    color-scheme: light;
+    --ground:      #FFFFFF;
+    --surface-2:   #F3F6F7;
+    --surface-3:   #E8EEF0;
+    --tip:         #FFFFFF;
+    --ink:         #131313;
+    --ink-2:       #44535A;
+    --ink-3:       #65737A;
+    --rule:        #DDE4E7;
+    --rule-2:      #C2CDD2;
+    --heading:     #244C5A;
+    --brand:       #BA0C2F;
+    --brand-ink:   #FFFFFF;
+    --focus:       #244C5A;
+    --band:        #244C5A;
+    --band-ink:    #163540;
+    --band-panel:  rgba(255,255,255,.08);
+    --band-line:   rgba(255,255,255,.24);
+    --band-ruled:  rgba(255,255,255,.035);
+    --on-band:     #FFFFFF;
+    --on-band-2:   rgba(255,255,255,.86);
+    --on-band-3:   rgba(255,255,255,.72);
+    --band-danger: #FFC7CB;
+    --focus-band:  #FFD34E;
+    --levy-1: #117EAB;
+    --levy-2: #BA0C2F;
+    --levy-3: #7F5BA6;
+    --levy-4: #4E9B3F;
+    --levy-5: #365BA1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground:      #1A1F22;
+      --surface-2:   #21282C;
+      --surface-3:   #2A3338;
+      --tip:         #263036;
+      --ink:         #E8EDEF;
+      --ink-2:       #B3C0C5;
+      --ink-3:       #8E9CA2;
+      --rule:        #2D373C;
+      --rule-2:      #3D494F;
+      --heading:     #A9CCD8;
+      --brand:       #E8727A;
+      --brand-ink:   #1A1F22;
+      --focus:       #A9CCD8;
+      --band:        #1F4553;
+      --levy-1: #2A8EBB;
+      --levy-2: #D24B53;
+      --levy-3: #A280C8;
+      --levy-4: #59A04B;
+      --levy-5: #5B7FC2;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground:      #1A1F22;
+    --surface-2:   #21282C;
+    --surface-3:   #2A3338;
+    --tip:         #263036;
+    --ink:         #E8EDEF;
+    --ink-2:       #B3C0C5;
+    --ink-3:       #8E9CA2;
+    --rule:        #2D373C;
+    --rule-2:      #3D494F;
+    --heading:     #A9CCD8;
+    --brand:       #E8727A;
+    --brand-ink:   #1A1F22;
+    --focus:       #A9CCD8;
+    --band:        #1F4553;
+    --levy-1: #2A8EBB;
+    --levy-2: #D24B53;
+    --levy-3: #A280C8;
+    --levy-4: #59A04B;
+    --levy-5: #5B7FC2;
+  }
+  
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  [tabindex="-1"]:focus { outline: none; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+  
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: "Public Sans", ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .col { max-width: 960px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 32px); }
+  .display { font-family: "Besley", Georgia, "Times New Roman", serif; }
+  
+  /* ================= the band ================= */
+  .band {
+    position: relative; background-color: var(--band); color: var(--on-band);
+    /* ledger paper: a faint rule every 32px */
+    background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--band-ruled) 31px 32px);
+  }
+  .band :focus-visible { outline: 3px solid var(--focus-band); outline-offset: 3px; }
+  .stripe { height: 5px; background: var(--brand); }
+  .band .col { padding-block: 20px clamp(40px, 6vw, 60px); }
+  .band-edge {   /* the torn edge of a receipt */
+    height: 10px; background: var(--band);
+    --teeth: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% 0 / 20px 100%;
+    -webkit-mask: var(--teeth); mask: var(--teeth);
+  }
+  .topline { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+  .org { font-size: 12.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-2); }
+  .pill {
+    font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
+    color: var(--on-band-2); border: 1px solid var(--band-line); border-radius: 999px; padding: 4px 11px;
+  }
+  h1 {
+    font-family: "Besley", Georgia, "Times New Roman", serif; font-weight: 600;
+    font-size: clamp(19px, 2.4vw, 23px); line-height: 1.2; margin: 14px 0 0; color: var(--on-band);
+  }
+  .screen { margin-top: clamp(30px, 6vw, 58px); }
+  
+  /* ---------- questions ---------- */
+  .ask { max-width: 680px; }
+  .steps { display: flex; align-items: center; gap: 8px; }
+  .steps .lbl { font-size: 12.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-3); margin-right: 6px; }
+  .steps i { width: 30px; height: 4px; border-radius: 2px; background: var(--band-line); }
+  .steps i.on { background: var(--on-band); }
+  .q {
+    font-family: "Besley", Georgia, "Times New Roman", serif; font-weight: 700; color: var(--on-band);
+    font-size: clamp(29px, 4.8vw, 45px); line-height: 1.09; letter-spacing: -.012em;
+    margin: 16px 0 14px; text-wrap: balance;
+  }
+  .ask .lede { font-size: 17px; color: var(--on-band-2); max-width: 56ch; margin: 0 0 28px; }
+  .choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .choice {
+    display: grid; grid-template-columns: 1fr auto; column-gap: 16px; align-items: center; text-align: left;
+    font: inherit; color: var(--on-band); cursor: pointer;
+    background: var(--band-panel); border: 1.5px solid rgba(255,255,255,.5); border-radius: 10px; padding: 18px 20px;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .choice .ct { grid-column: 1; font-weight: 700; font-size: 19px; line-height: 1.25; }
+  .choice .cs { grid-column: 1; font-size: 14.5px; color: var(--on-band-2); margin-top: 3px; transition: color .15s ease; }
+  .choice .go { grid-column: 2; grid-row: 1 / span 2; font-size: 22px; transition: transform .15s ease; }
+  .choice:hover { background: var(--on-band); color: var(--band-ink); border-color: var(--on-band); }
+  .choice:hover .cs { color: var(--band-ink); }
+  .choice:hover .go { transform: translateX(4px); }
+  .privacy { font-size: 13.5px; color: var(--on-band-3); margin: 22px 0 0; }
+  
+  .field-label { display: block; font-size: 14px; font-weight: 600; color: var(--on-band-2); margin: 0 0 4px; }
+  .money { position: relative; max-width: 360px; }
+  .money span {
+    position: absolute; left: 0; bottom: 11px; pointer-events: none; color: var(--on-band-3);
+    font-family: "Besley", Georgia, serif; font-weight: 700; font-size: 32px; line-height: 1;
+  }
+  #value-input {
+    width: 100%; background: transparent; color: var(--on-band); caret-color: var(--on-band);
+    border: 0; border-bottom: 2px solid var(--on-band); border-radius: 0; padding: 4px 0 8px 30px;
+    font-family: "Besley", Georgia, serif; font-weight: 700; font-size: 40px; line-height: 1.1;
+    font-variant-numeric: lining-nums;
+  }
+  #value-input::placeholder { color: rgba(255,255,255,.34); }
+  #value-input:focus-visible { outline: none; border-bottom-color: var(--focus-band); box-shadow: 0 2px 0 var(--focus-band); }
+  #value-input[aria-invalid="true"] { border-bottom-color: var(--band-danger); }
+  .err { color: var(--band-danger); font-size: 14.5px; margin: 10px 0 0; min-height: 1.5em; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 14px; }
+  button.primary {
+    font: inherit; font-weight: 700; font-size: 16.5px; color: var(--band-ink); background: var(--on-band);
+    border: 0; border-radius: 8px; padding: 13px 22px; cursor: pointer; transition: transform .12s ease;
+  }
+  button.primary:hover { transform: translateY(-1px); }
+  button.ghost {
+    font: inherit; font-size: 15px; font-weight: 600; color: var(--on-band); background: transparent;
+    border: 1.5px solid rgba(255,255,255,.5); border-radius: 8px; padding: 9px 16px; cursor: pointer; white-space: nowrap;
+    transition: background-color .15s ease, color .15s ease;
+  }
+  button.ghost:hover { background: var(--on-band); color: var(--band-ink); }
+  button.link {
+    font: inherit; font-size: 15px; color: var(--on-band); background: none; border: 0; padding: 0;
+    text-decoration: underline; text-underline-offset: 4px; cursor: pointer;
+  }
+  
+  /* ---------- the answer ---------- */
+  .whose { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .tag {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
+    color: var(--on-band); background: var(--band-panel); border: 1px solid var(--band-line); border-radius: 4px; padding: 3px 9px;
+  }
+  .whose-line { margin: 0; font-size: 16.5px; color: var(--on-band-2); }
+  .whose-line b { color: var(--on-band); font-weight: 700; }
+  .whose .ghost { margin-left: auto; }
+  .whose-note { font-size: 13.5px; color: var(--on-band-3); max-width: 72ch; margin: 10px 0 0; }
+  
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px 44px; align-items: end; margin-top: clamp(26px, 4vw, 40px); }
+  .total-label { font-size: 12.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-3); margin: 0; }
+  .hero-total {
+    font-family: "Besley", Georgia, "Times New Roman", serif; font-weight: 800; color: var(--on-band);
+    font-size: clamp(54px, 9.4vw, 92px); line-height: .98; letter-spacing: -.025em;
+    font-variant-numeric: lining-nums; margin: 8px 0 0; display: block; white-space: nowrap;
+  }
+  .hero-total[data-long] { font-size: clamp(42px, 7vw, 68px); }
+  .per { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+  .per li {
+    font-size: 14.5px; color: var(--on-band-2); background: var(--band-panel);
+    border: 1px solid var(--band-line); border-radius: 999px; padding: 5px 13px;
+  }
+  .per b { color: var(--on-band); font-weight: 700; font-variant-numeric: tabular-nums; }
+  
+  .ledger { background: var(--band-panel); border: 1px solid var(--band-line); border-radius: 10px; padding: 16px 18px 14px; }
+  .ledger h2 { font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--on-band-3); margin: 0 0 8px; }
+  table.calc { width: 100%; border-collapse: collapse; font-family: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  table.calc td { padding: 6px 0; vertical-align: top; }
+  table.calc td.lbl { color: var(--on-band-2); padding-right: 8px; }
+  table.calc td.lbl .what { display: block; font-family: "Public Sans", ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: var(--on-band); }
+  table.calc td.lbl .how { display: block; font-size: 12px; color: var(--on-band-3); margin-top: 1px; }
+  table.calc td.val { text-align: right; color: var(--on-band); font-weight: 500; font-size: 13.5px; white-space: nowrap; padding-left: 10px; }
+  table.calc tr.sum td { border-top: 1px solid var(--band-line); padding-top: 8px; font-weight: 500; }
+  table.calc tr.sum td.lbl { letter-spacing: .08em; text-transform: uppercase; font-size: 11px; color: var(--on-band-3); }
+  .ledger-note { font-size: 12.5px; color: var(--on-band-3); margin: 10px 0 0; line-height: 1.5; }
+  
+  .saved {
+    display: flex; align-items: flex-start; gap: 11px; margin: clamp(24px, 4vw, 34px) 0 0; padding-top: 18px;
+    border-top: 1px solid var(--band-line); font-size: 16px; color: var(--on-band-2);
+  }
+  .saved > span { max-width: 74ch; }
+  .saved svg { flex: none; margin-top: 2px; }
+  .saved b { color: var(--on-band); font-weight: 700; font-variant-numeric: tabular-nums; }
+  
+  /* ================= the paper ================= */
+  main > section { padding-block: clamp(38px, 6vw, 60px); border-bottom: 1px solid var(--rule); }
+  .eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); margin: 0 0 8px; }
+  main h2 {
+    font-family: "Besley", Georgia, "Times New Roman", serif; font-weight: 700; color: var(--heading);
+    font-size: clamp(24px, 3.3vw, 31px); line-height: 1.14; letter-spacing: -.012em; margin: 0 0 10px; text-wrap: balance;
+  }
+  .lede { color: var(--ink-2); max-width: 64ch; margin: 0; }
+  
+  /* ---------- levy chips: hover or select one to trace its dollars ---------- */
+  .chips-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 24px 0 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 13.5px; font-weight: 500; color: var(--ink-2);
+    background: transparent; border: 1px solid var(--rule-2); border-radius: 999px; padding: 5px 13px 5px 10px; cursor: pointer;
+    transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+  }
+  .chip i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+  .chip:hover, .chip[aria-pressed="true"] { background: var(--surface-2); border-color: var(--heading); color: var(--ink); }
+  .chip[aria-pressed="true"] { box-shadow: inset 0 0 0 1px var(--heading); }
+  .chip-status { font-size: 13.5px; color: var(--ink-3); margin: 0; min-height: 1.5em; }
+  .chip-status b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+  
+  /* ---------- service rows ---------- */
+  .rows-head, .row { display: grid; grid-template-columns: minmax(0, 21em) minmax(0, 1fr) 5.8em 3.7em; column-gap: 18px; align-items: center; }
+  .rows-head { font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); padding: 0 0 8px; border-bottom: 1px solid var(--rule-2); }
+  .rows-head span:nth-child(n+3) { text-align: right; }
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .row { padding: 11px 0; border-bottom: 1px solid var(--rule); transition: opacity .15s ease; }
+  .name { min-width: 0; }
+  .name .t { display: block; font-size: 15.5px; font-weight: 600; line-height: 1.3; overflow-wrap: break-word; }
+  .name .s .pair { white-space: nowrap; }
+  .name .s { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .track { min-width: 0; }
+  .bar { display: flex; height: 14px; }
+  .seg { min-width: 0; height: 100%; transition: opacity .15s ease; }
+  .seg + .seg { margin-left: 2px; }
+  .bar.tight .seg + .seg { margin-left: 0; }
+  .bar .seg:last-child { border-radius: 0 4px 4px 0; }
+  .amt { text-align: right; font-size: 15.5px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pct { text-align: right; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .row.zero .t, .row.zero .amt { color: var(--ink-3); font-weight: 500; }
+  .rows.focusing .seg:not(.on) { opacity: .14; }
+  .rows.focusing .row:not(.has) .name, .rows.focusing .row:not(.has) .amt, .rows.focusing .row:not(.has) .pct { opacity: .4; }
+  
+  button.more {
+    width: 100%; font: inherit; color: inherit; text-align: left; background: none; border: 0; cursor: pointer;
+    border-bottom: 1px solid var(--rule);
+  }
+  button.more .t::after {
+    content: ""; display: inline-block; width: 7px; height: 7px; margin-left: 10px; vertical-align: 2px;
+    border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); transition: transform .15s ease;
+  }
+  button.more[aria-expanded="true"] .t::after { transform: rotate(-135deg); vertical-align: -2px; }
+  /* tint bleeds 14px into the gutter so the nested amounts stay in the same columns */
+  .rows.small { background: var(--surface-2); margin: 0 -14px; padding: 0 14px; border-bottom: 1px solid var(--rule); }
+  .rows.small .row:last-child { border-bottom: 0; }
+  .rows.small .name .t { font-size: 14.5px; }
+  
+  /* hover: tint the row (the tint runs 10px past the column without moving anything)
+     and float the levy breakdown beside the pointer */
+  .rows > li.row:hover, button.more:hover { background: var(--surface-2); box-shadow: -10px 0 0 var(--surface-2), 10px 0 0 var(--surface-2); }
+  .rows.small > li.row:hover { background: var(--surface-3); box-shadow: -10px 0 0 var(--surface-3), 10px 0 0 var(--surface-3); }
+  #tip {
+    position: fixed; z-index: 50; pointer-events: none; opacity: 0; transition: opacity .12s ease;
+    min-width: 210px; max-width: 310px; padding: 12px 14px; font-size: 13px; color: var(--ink);
+    background: var(--tip); border: 1px solid var(--rule-2); border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 14px 30px -12px rgba(0,0,0,.42);
+  }
+  #tip.on { opacity: 1; }
+  #tip .tt { font-weight: 700; font-size: 14px; line-height: 1.3; }
+  #tip .tg { color: var(--ink-3); font-size: 12px; margin: 2px 0 8px; }
+  #tip .tr { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+  #tip .tr i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  #tip .tr .nm { flex: 1 1 auto; color: var(--ink-2); }
+  #tip .tr .vv { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+  #tip .tsum { margin-top: 6px; padding-top: 7px; border-top: 1px solid var(--rule); }
+  #tip .tsum .nm { color: var(--ink); font-weight: 700; }
+  #tip .tsum .vv { font-weight: 700; }
+  
+  /* ---------- levy donut ---------- */
+  .levy-grid { display: grid; grid-template-columns: minmax(220px, 290px) minmax(0, 1fr); gap: 26px 52px; align-items: center; margin-top: 28px; }
+  .donut-wrap { position: relative; width: 100%; max-width: 290px; aspect-ratio: 1; margin-inline: auto; }
+  .donut { display: block; width: 100%; height: 100%; overflow: visible; }
+  .donut path { stroke: var(--ground); stroke-width: 2; stroke-linejoin: round; transition: opacity .15s ease; }
+  .donut.focusing path:not(.on) { opacity: .22; }
+  .donut-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; padding: 0 23%; }
+  .dc-label { font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); line-height: 1.3; }
+  .dc-value { font-family: "Besley", Georgia, serif; font-weight: 800; font-size: clamp(21px, 2.7vw, 27px); color: var(--heading); line-height: 1.15; margin-top: 3px; font-variant-numeric: lining-nums; }
+  .dc-sub { font-size: 13px; line-height: 1.35; color: var(--ink-2); margin-top: 3px; }
+  .tbl-wrap { overflow-x: auto; }
+  table.levy { width: 100%; min-width: 340px; border-collapse: collapse; font-size: 15px; }
+  table.levy th {
+    text-align: left; font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3);
+    padding: 0 0 8px; border-bottom: 1px solid var(--rule-2); white-space: nowrap;
+  }
+  table.levy th.r, table.levy td.r { text-align: right; padding-left: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.levy td { padding: 10px 0; border-bottom: 1px solid var(--rule); }
+  table.levy tr.on td { background: var(--surface-2); }
+  table.levy tr.total td { font-weight: 700; border-top: 1px solid var(--rule-2); border-bottom: 0; }
+  .levy-name { display: flex; align-items: center; gap: 10px; }
+  .levy-name i { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+  .mills-sm { display: none; font-size: 12.5px; font-weight: 400; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .callout { color: var(--ink-2); max-width: 70ch; margin: 24px 0 0; }
+  .callout b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+  
+  /* ---------- context figures ---------- */
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 28px; }
+  .tile { padding: 2px 22px; border-left: 1px solid var(--rule); }
+  .tile:first-child { border-left: 0; padding-left: 0; }
+  .tile .fig {
+    font-family: "Besley", Georgia, serif; font-weight: 800; color: var(--heading);
+    font-size: clamp(27px, 3.5vw, 37px); line-height: 1.05; letter-spacing: -.015em; font-variant-numeric: lining-nums;
+  }
+  .tile p { font-size: 14px; line-height: 1.5; color: var(--ink-2); margin: 9px 0 0; }
+  
+  /* ---------- settings, notes, foot ---------- */
+  details.settings { margin-top: clamp(30px, 5vw, 44px); background: var(--surface-2); border: 1px solid var(--rule); border-radius: 10px; }
+  details.settings > summary {
+    list-style: none; cursor: pointer; padding: 15px 20px; display: flex; align-items: center; gap: 12px;
+    font-size: 12.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2);
+  }
+  details.settings > summary::-webkit-details-marker { display: none; }
+  details.settings > summary::before { content: "+"; font-size: 17px; line-height: 1; color: var(--brand); font-weight: 700; }
+  details.settings[open] > summary::before { content: "\2212"; }
+  .settings-body { padding: 2px 20px 20px; border-top: 1px solid var(--rule); }
+  .settings-body > p { font-size: 14.5px; color: var(--ink-2); margin: 14px 0 0; max-width: 66ch; }
+  .set-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 20px; margin: 16px 0; }
+  .set-grid label { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); margin: 0 0 5px; }
+  .set-grid label i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+  .set-grid input {
+    width: 100%; font: inherit; font-size: 15px; font-variant-numeric: tabular-nums; color: var(--ink);
+    background: var(--ground); border: 1px solid var(--rule-2); border-radius: 6px; padding: 8px 10px;
+  }
+  .set-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding-top: 14px; border-top: 1px solid var(--rule); }
+  .readout { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .readout b { color: var(--ink); }
+  button.reset {
+    font: inherit; font-size: 14.5px; font-weight: 700; color: var(--brand-ink); background: var(--brand);
+    border: 0; border-radius: 8px; padding: 9px 16px; cursor: pointer;
+  }
+  button.reset:hover { opacity: .9; }
+  .notes { font-size: 13.5px; line-height: 1.6; color: var(--ink-3); padding-block: 30px 8px; }
+  .notes p { margin: 0 0 10px; max-width: 82ch; }
+  .notes b { color: var(--ink-2); }
+  .foot { font-size: 13px; color: var(--ink-3); padding-block: 22px 48px; }
+  .foot p { margin: 0; }
+  
+  /* ---------- motion: one orchestrated reveal per screen ---------- */
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
+  .screen.enter > * { animation: rise .45s cubic-bezier(.2,.7,.2,1) both; }
+  .screen.enter > *:nth-child(2) { animation-delay: .05s; }
+  .screen.enter > *:nth-child(3) { animation-delay: .1s; }
+  .screen.enter > *:nth-child(4) { animation-delay: .15s; }
+  .screen.enter > *:nth-child(5) { animation-delay: .2s; }
+  .reveal > section { animation: rise .5s cubic-bezier(.2,.7,.2,1) .12s both; }
+  .reveal .bar { transform-origin: left center; animation: grow .7s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(.2s + var(--i, 0) * 28ms); }
+  
+  @media (max-width: 800px) {
+    .hero { grid-template-columns: 1fr; align-items: start; }
+    .levy-grid { grid-template-columns: 1fr; }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 22px; }
+    .tile:nth-child(odd) { border-left: 0; padding-left: 0; }
+  }
+  @media (max-width: 520px) {
+    table.levy { min-width: 0; }
+    table.levy .col-mills { display: none; }
+    .mills-sm { display: block; }
+  }
+  @media (max-width: 680px) {
+    .rows-head { display: none; }
+    .rows { border-top: 1px solid var(--rule-2); }
+    .rows.small { border-top: 0; }
+    .row { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "name amt pct" "track track track"; column-gap: 10px; row-gap: 8px; align-items: start; }
+    .row .name { grid-area: name; } .row .track { grid-area: track; } .row .amt { grid-area: amt; } .row .pct { grid-area: pct; padding-top: 2px; }
+    .whose .ghost { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  </style>
+  <style>
+    /* skeleton reset: the page's own stylesheet does the rest */
+    html { color-scheme: light dark; }
+    body { margin: 0; }
+    img { max-width: 100%; }
+    [hidden] { display: none !important; }
+  </style>
+  <script>
+    /* ?theme=light or ?theme=dark pins the widget to the host page's mode.
+       Runs before first paint so there is no flash of the wrong theme. */
+    (function () {
+      try {
+        var t = new URLSearchParams(location.search).get('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+  <style id="site-skin">
+    /* the personal site's colors over Design A3's tokens; same three theme scopes, later in
+       the document, so they win without touching the tool's own stylesheet */
+    :root {
+      --heading: #1F4D3A; --brand: #B23A2B; --focus: #1F4D3A; --band: #1F4D3A; --band-ink: #123024;
+      --ink: #15211C; --ink-2: #43524A; --ink-3: #66746C; --rule: #D6DED8; --rule-2: #BBC7BF;
+      --surface-2: #F1F5F2; --surface-3: #E4ECE6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) { --heading: #A9D1BE; --brand: #E27B6B; --focus: #A9D1BE; --band: #1B3F31; }
+    }
+    :root[data-theme="dark"] { --heading: #A9D1BE; --brand: #E27B6B; --focus: #A9D1BE; --band: #1B3F31; }
+    .sitebar {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px;
+      max-width: 960px; margin: 0 auto; padding: 11px clamp(16px, 4vw, 32px); font-size: 14px;
+    }
+    .sitebar a { color: var(--heading); font-weight: 600; text-decoration: none; }
+    .sitebar a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .sitebar span { color: var(--ink-3); }
+    .sitebar .sep { margin: 0 8px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="sitebar" aria-label="Site"><span><a href="../../index.html">&larr; Hai (David) Guo</a><span class="sep">/</span><a href="../../projects.html">Projects</a></span><span>What your property tax pays for</span></nav>
+
+  <div class="band">
+    <div class="stripe"></div>
+    <div class="col">
+      <header>
+        <div class="topline">
+          <span class="org">Wichita Public Schools &middot; USD&nbsp;259</span>
+          <span class="pill">Estimate &middot; not a tax bill</span>
+        </div>
+        <h1>What your property tax pays for</h1>
+      </header>
+
+      <!-- ---------------- question 1 ---------------- -->
+      <section class="screen ask" id="screen-own" aria-labelledby="q-own">
+        <div class="steps" aria-hidden="true"><span class="lbl">Question 1</span><i class="on"></i><i></i></div>
+        <h2 class="q" id="q-own" tabindex="-1" data-focus>Do you own a home in the Wichita school district?</h2>
+        <p class="lede">
+          Two quick questions, then you&rsquo;ll see what a home pays to Wichita Public Schools each
+          year and what that money pays for.
+        </p>
+        <div class="choices">
+          <button type="button" class="choice" data-own="yes">
+            <span class="ct">Yes, I own a home</span>
+            <span class="cs">Next you&rsquo;ll enter its appraised value.</span>
+            <span class="go" aria-hidden="true">&rarr;</span>
+          </button>
+          <button type="button" class="choice" data-own="no">
+            <span class="ct">No</span>
+            <span class="cs" id="no-sub">We&rsquo;ll use a $200,000 example home.</span>
+            <span class="go" aria-hidden="true">&rarr;</span>
+          </button>
+        </div>
+        <p class="privacy">Nothing you enter is saved or sent anywhere. The math runs in your browser.</p>
+      </section>
+
+      <!-- ---------------- question 2 ---------------- -->
+      <section class="screen ask" id="screen-value" aria-labelledby="q-value" hidden>
+        <div class="steps" aria-hidden="true"><span class="lbl">Question 2</span><i class="on"></i><i class="on"></i></div>
+        <h2 class="q" id="q-value" tabindex="-1">What is your home&rsquo;s appraised value?</h2>
+        <p class="lede">
+          It&rsquo;s on the valuation notice the Sedgwick County Appraiser mails each spring. A rough
+          estimate is fine.
+        </p>
+        <form id="value-form" novalidate>
+          <label class="field-label" for="value-input">Estimated appraised value</label>
+          <div class="money">
+            <span aria-hidden="true">$</span>
+            <input id="value-input" type="text" inputmode="numeric" autocomplete="off"
+                   placeholder="185,000" aria-describedby="value-err">
+          </div>
+          <p class="err" id="value-err" role="alert"></p>
+          <div class="actions">
+            <button type="submit" class="primary">Show my school tax</button>
+            <button type="button" class="ghost" data-nav="own">Back</button>
+            <button type="button" class="link" id="use-example">Not sure? Use a $200,000 example</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ---------------- the answer ---------------- -->
+      <section class="screen" id="screen-receipt" aria-label="Your school district tax" hidden>
+        <div>
+          <div class="whose">
+            <span class="tag" id="whose-tag">Example</span>
+            <p class="whose-line" id="whose-line" tabindex="-1" data-focus></p>
+            <button type="button" class="ghost" data-nav="own">Change answers</button>
+          </div>
+          <p class="whose-note" id="whose-note" hidden></p>
+        </div>
+
+        <div class="hero">
+          <div>
+            <p class="total-label" id="total-label">Your annual school district tax</p>
+            <span class="hero-total" id="total">$1,009.70</span>
+            <ul class="per">
+              <li><b id="per-month">$84.14</b> a month</li>
+              <li><b id="per-day">$2.77</b> a day</li>
+            </ul>
+          </div>
+          <div class="ledger">
+            <h2>How that is figured</h2>
+            <table class="calc"><tbody id="calcbody"></tbody></table>
+            <p class="ledger-note" id="calcnote"></p>
+          </div>
+        </div>
+
+        <p class="saved" id="savedbox">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M5.8 10.4l2.8 2.8 5.6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span id="saved-text"></span>
+        </p>
+      </section>
+    </div>
+  </div>
+  <div class="band-edge" aria-hidden="true"></div>
+
+  <main class="col" id="receipt-body" hidden>
+
+    <!-- ---------------- services ---------------- -->
+    <section aria-labelledby="fn-title">
+      <p class="eyebrow">Where it goes</p>
+      <h2 id="fn-title">Your bill, service by service</h2>
+      <p class="lede">
+        Every service on the bill, largest first. Bar colors show which levy pays for each. Hover
+        over a row for the dollar breakdown.
+      </p>
+      <div class="chips-row">
+        <ul class="chips" id="chips"></ul>
+        <p class="chip-status" id="chip-status" aria-live="polite"></p>
+      </div>
+      <div class="rows-head" aria-hidden="true"><span>Service</span><span></span><span>Amount</span><span>Share</span></div>
+      <ul class="rows" id="rows"></ul>
+    </section>
+
+    <!-- ---------------- levies ---------------- -->
+    <section aria-labelledby="levy-title">
+      <p class="eyebrow">Where it comes from</p>
+      <h2 id="levy-title">Your bill by levy</h2>
+      <p class="lede">
+        The school district&rsquo;s tax is five separate levies, each set in mills: dollars per
+        $1,000 of assessed value.
+      </p>
+      <div class="levy-grid">
+        <div class="donut-wrap">
+          <svg class="donut" id="donut" viewBox="-104 -104 208 208" role="img" aria-labelledby="levy-title donut-desc">
+            <desc id="donut-desc"></desc>
+            <g id="donut-slices"></g>
+          </svg>
+          <div class="donut-center" aria-hidden="true">
+            <div class="dc-label" id="dc-label"></div>
+            <div class="dc-value" id="dc-value"></div>
+            <div class="dc-sub" id="dc-sub"></div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="levy">
+            <thead><tr><th>Levy</th><th class="r col-mills">Mills</th><th class="r">Tax</th><th class="r">Share</th></tr></thead>
+            <tbody id="levybody"></tbody>
+          </table>
+        </div>
+      </div>
+      <p class="callout" id="callout"></p>
+    </section>
+
+    <!-- ---------------- context ---------------- -->
+    <section aria-labelledby="ctx-title">
+      <p class="eyebrow">For context</p>
+      <h2 id="ctx-title">The district&rsquo;s side of the ledger</h2>
+      <div class="tiles" id="tiles"></div>
+    </section>
+
+    <!-- ---------------- settings ---------------- -->
+    <details class="settings">
+      <summary>District settings &mdash; mill rates, assessment ratio, exemption</summary>
+      <div class="settings-body">
+        <p>
+          These are the adopted 2026&ndash;27 figures. Change any of them and the whole receipt
+          recalculates &mdash; useful for modelling a mill-rate decision before a hearing.
+        </p>
+        <div class="set-grid" id="millsgrid"></div>
+        <div class="set-grid">
+          <div>
+            <label for="ratio">Residential assessment ratio (%)</label>
+            <input id="ratio" type="number" step="0.1" min="0" max="100" value="11.5">
+          </div>
+          <div>
+            <label for="exempt">Homestead exemption, appraised ($)</label>
+            <input id="exempt" type="number" step="1000" min="0" value="75000">
+          </div>
+        </div>
+        <div class="set-foot">
+          <span class="readout" id="millreadout"></span>
+          <button class="reset" id="reset" type="button">Reset to adopted 2026&ndash;27</button>
+        </div>
+      </div>
+    </details>
+
+  <div class="notes">
+      <p><b>About this tool.</b> Built by Hai (David) Guo from the district&rsquo;s published budget documents. It is not an official product of Wichita Public Schools.</p>
+      <p>
+        <b>Sources.</b> Mill rates and fund totals come from the USD&nbsp;259 2026&ndash;27 budget
+        documents (draft dated 8/18/2026; Notice of Hearing 9/14/2026). The service categories, and the
+        share of each levy assigned to each service, were prepared for this receipt.
+      </p>
+      <p>
+        <b>How the split works.</b> Each levy&rsquo;s tax is computed exactly &mdash; the exemption is
+        applied to the first 20 mills only &mdash; then divided among services by a fixed share for that
+        levy. A service paid by more than one levy is shown once, with those levies added together.
+        Because the exemption shrinks the General Fund&rsquo;s weight on lower-valued homes, the mix
+        changes with the home value.
+      </p>
+      <p>
+        <b>What this is not.</b> An estimate for a residential homestead, not a tax bill. It ignores
+        delinquency, special assessments, protests and any exemption other than the statewide homestead
+        exemption, and it covers only the school district&rsquo;s levies &mdash; not the county, city or
+        state. Tax dollars are not earmarked to particular services inside a fund; the split here is
+        pro rata, not a tracing.
+      </p>
+    </div>
+  </main>
+
+  <footer class="col foot">
+    <p>Figures from the USD&nbsp;259 2026&ndash;27 proposed budget. School district levies only.</p>
+  </footer>
+</div>
+
+<div id="tip" role="tooltip" aria-hidden="true"></div>
+
+<script>
+const DATA = {"meta":{"district":"Wichita Public Schools (USD 259)","fiscalYear":"2026-27","source":"2026-27BudgetDocumentsDraft.pdf, Notice of Hearing 9/14/2026","millLevyTotal":814461501,"taxLevied":213210612,"avGeneral":3578722551,"avOther":4487344540,"categoriesSource":{"workbook":"Tax Receipt Ideas 08-18-2026.xlsx","sheet":"idea 4"}},"defaults":{"assessmentRatio":11.5,"exemption":75000,"illustrationValue":200000},"funds":[{"key":"general","name":"General Fund","mills":20.0,"exempt":true,"total":462628514,"short":"General Fund"},{"key":"lob","name":"Supplemental General (LOB)","mills":17.1,"exempt":false,"total":153360112,"short":"LOB"},{"key":"capital","name":"Capital Outlay","mills":8.0,"exempt":false,"total":143822715,"short":"Capital Outlay"},{"key":"bond","name":"Bond & Interest #1","mills":6.2,"exempt":false,"total":53580160,"short":"Bond & Interest"},{"key":"liability","name":"Special Liability Expense","mills":0.1,"exempt":false,"total":1070000,"short":"Special Liability"}],"categories":[{"label":"Teachers, Paras, Classroom Costs","workbookLabel":"Teachers, Paras, Classroom Costs","byFund":{"general":0.23,"lob":0.19781978197819783}},{"label":"Counselors, Social Workers, Related Costs","workbookLabel":"Counselors, Social Workers, Related Costs","byFund":{"general":0.1,"lob":0.086008600860086}},{"label":"Teacher Improvement Costs","workbookLabel":"Teacher Improvement Costs","byFund":{"general":0.07,"lob":0.0602060206020602}},{"label":"School Administration (Principal and Office Support)","workbookLabel":"School Administration (Principal and Office Support)","byFund":{"general":0.05}},{"label":"General Administration (District Leadership and Support Staff)","workbookLabel":"General Administration (District Leadership and Support Staff)","byFund":{"general":0.0}},{"label":"Transportation","workbookLabel":"Transportation","byFund":{"general":0.05,"lob":0.043004300430043}},{"label":"4-Year-Old/Pre-K Services","workbookLabel":"4-Year-Old/Pre-K Services","byFund":{"general":0.015}},{"label":"Education Supports - At-Risk Students","workbookLabel":"Education Supports - At-Risk Students","byFund":{"general":0.235,"lob":0.1909190919091909}},{"label":"English Learner Programs and Services","workbookLabel":"English Learner Programs and Services","byFund":{"general":0.03,"lob":0.025702570257025704}},{"label":"Virtual Learning Programs","workbookLabel":"Virtual Learning Programs","byFund":{"general":0.005}},{"label":"Professional Development","workbookLabel":"Professional Dev","byFund":{"general":0.005}},{"label":"Special Education Services","workbookLabel":"Special Education Services","byFund":{"general":0.185,"lob":0.33083308330833083}},{"label":"Career and Technical Education Services","workbookLabel":"Career and Technical Education Services","byFund":{"general":0.02,"lob":0.0215021502150215}},{"label":"Textbooks","workbookLabel":"Textbooks","byFund":{"general":0.005}},{"label":"Central Services (Payroll, HR, Accounting, Purchasing, etc.)","workbookLabel":"Central Services (Payroll, HR, Accounting, Purchasing, etc.)","byFund":{"lob":0.0258025802580258}},{"label":"Central Services - IT Needs","workbookLabel":"Central Services - IT Needs","byFund":{"lob":0.017201720172017203}},{"label":"Parents as Teachers Program","workbookLabel":"Parents as Teacher Programs","byFund":{"lob":0.001000100010001}},{"label":"Repairs and Maintenance","workbookLabel":"Repairs and Maintenance","byFund":{"capital":0.637957015}},{"label":"Building Improvements","workbookLabel":"Building Improvements","byFund":{"capital":0.092712059}},{"label":"IT Needs (Computers, Network and Security, Software)","workbookLabel":"IT Needs (Computers, Network and Security, Software)","byFund":{"capital":0.269330926}},{"label":"Facilities","workbookLabel":"Facilities","byFund":{"bond":1.0}},{"label":"Insurance & Judgements","workbookLabel":"Insurance & Judgements","byFund":{"liability":1.0}}]};
+
+/* ---------------- state ---------------- */
+const cfg = {
+  mills: {}, ratio: DATA.defaults.assessmentRatio, exemption: DATA.defaults.exemption,
+  appraised: DATA.defaults.illustrationValue
+};
+DATA.funds.forEach(f => cfg.mills[f.key] = f.mills);
+/* own: 'yes' | 'no' | 'unsure' -- who the receipt is about */
+const state = { own: null, value: null };
+const LEVY_VAR = {};
+DATA.funds.forEach((f, i) => LEVY_VAR[f.key] = `var(--levy-${i + 1})`);
+
+const $ = id => document.getElementById(id);
+const usd  = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const usd0 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const grp  = new Intl.NumberFormat('en-US');
+const esc  = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const abbr = n => n >= 1e9 ? (n / 1e9).toFixed(1) + 'B' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : grp.format(Math.round(n));
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
+
+/* ---------------- the tax itself ---------------- */
+function taxByFund() {
+  const r = cfg.ratio / 100, out = {};
+  for (const f of DATA.funds) {
+    const base = f.exempt ? Math.max(cfg.appraised - cfg.exemption, 0) : cfg.appraised;
+    out[f.key] = base * r * (cfg.mills[f.key] || 0) / 1000;
+  }
+  return out;
+}
+
+/* Each levy's tax divided among services by that levy's shares; a service paid by several
+   levies is one line whose segments are those levies. */
+function lines(tax) {
+  return DATA.categories.map(c => {
+    const segs = DATA.funds
+      .filter(f => c.byFund[f.key] != null)
+      .map(f => ({ key: f.key, name: f.name, short: f.short, amount: tax[f.key] * c.byFund[f.key] }));
+    return { label: c.label, segs, total: segs.reduce((a, x) => a + x.amount, 0) };
+  }).sort((a, b) => b.total - a.total);
+}
+
+/* Round a set of amounts so the rounded lines add exactly to the rounded total -- lines that
+   don't add up read as an error. Largest remainder: floor everything, then hand the missing
+   units to the amounts that lost the most in rounding. */
+function apportion(values, target, unit = 100) {
+  const scaled = values.map(v => v * unit + 1e-9);
+  const out = scaled.map(Math.floor);
+  let missing = Math.round(target * unit) - out.reduce((a, b) => a + b, 0);
+  scaled.map((v, i) => [v - out[i], i]).sort((a, b) => b[0] - a[0])
+    .forEach(([, i]) => { if (missing > 0) { out[i]++; missing--; } });
+  scaled.map((v, i) => [v - out[i], i]).sort((a, b) => a[0] - b[0])
+    .forEach(([, i]) => { if (missing < 0 && out[i] > 0) { out[i]--; missing++; } });
+  return out.map(v => v / unit);
+}
+
+/* ---------------- the total, counted up once on arrival ---------------- */
+let totalRun = 0;
+function setTotal(value, animate) {
+  const el = $('total'), final = usd.format(value), run = ++totalRun;
+  el.textContent = final;
+  el.toggleAttribute('data-long', final.length >= 10);
+  if (!animate || calm.matches || document.visibilityState !== 'visible') return;
+  const t0 = performance.now(), dur = 700;
+  const frame = t => {
+    if (run !== totalRun) return;
+    const p = Math.min(1, (t - t0) / dur), eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = p < 1 ? usd.format(value * eased) : final;
+    if (p < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+  setTimeout(() => { if (run === totalRun) el.textContent = final; }, dur + 150);   /* never strand a partial number */
+}
+
+/* ---------------- render ---------------- */
+let smallOpen = false;
+const view = {};   /* what the last render drew, for the hover and select handlers */
+
+function rowHTML(l, max, i) {
+  const w = Math.max(l.total / max * 100, 0.5);
+  const segs = l.segs.filter(s => s.amount > 0).map(s =>
+    `<i class="seg" data-levy="${s.key}" style="flex:${s.amount} 0 0;background:${LEVY_VAR[s.key]}"></i>`).join('');
+  const sub = l.sub || (l.segs.length > 1
+    ? l.segs.map(s => `<span class="pair">${esc(s.short)} ${usd.format(s.cents)}</span>`).join(' &middot; ')
+    : esc(l.segs[0].short));
+  return `<div class="name"><span class="t">${esc(l.label)}</span><span class="s">${sub}</span></div>
+      <div class="track" aria-hidden="true"><div class="bar${w < 8 ? ' tight' : ''}" style="width:${w.toFixed(2)}%;--i:${i}">${segs}</div></div>
+      <div class="amt">${usd.format(l.shown)}</div><div class="pct">${l.pct.toFixed(1)}%</div>`;
+}
+
+function render(animate) {
+  const tax = taxByFund();
+  const total = Object.values(tax).reduce((a, b) => a + b, 0);
+  const mine = state.own === 'yes';
+  const r = cfg.ratio / 100;
+  const exemptMills = DATA.funds.filter(f => f.exempt).reduce((a, f) => a + (cfg.mills[f.key] || 0), 0);
+  const otherMills  = DATA.funds.filter(f => !f.exempt).reduce((a, f) => a + (cfg.mills[f.key] || 0), 0);
+
+  /* --- the band --- */
+  $('total-label').textContent = mine ? 'Your annual school district tax' : 'Annual school district tax on this home';
+  setTotal(total, animate);
+  $('per-month').textContent = usd.format(total / 12);
+  $('per-day').textContent = usd.format(total / 365);
+
+  const exBase = Math.max(cfg.appraised - cfg.exemption, 0);
+  const m = x => String(+x.toFixed(3));   /* 20.000 -> "20", 31.400 -> "31.4" */
+  const calc = [
+    [`<span class="what">${m(exemptMills)} mills, after the homestead exemption</span>` +
+     `<span class="how">(${usd0.format(cfg.appraised)} − ${usd0.format(cfg.exemption)}) × ${cfg.ratio}% × ${m(exemptMills)} ÷ 1,000</span>`,
+     exBase * r * exemptMills / 1000],
+    [`<span class="what">${m(otherMills)} mills, on the full value</span>` +
+     `<span class="how">${usd0.format(cfg.appraised)} × ${cfg.ratio}% × ${m(otherMills)} ÷ 1,000</span>`,
+     cfg.appraised * r * otherMills / 1000]
+  ];
+  const calcCents = apportion(calc.map(([, v]) => v), total);
+  $('calcbody').innerHTML =
+    calc.map(([l], i) => `<tr><td class="lbl">${l}</td><td class="val">${usd.format(calcCents[i])}</td></tr>`).join('') +
+    `<tr class="sum"><td class="lbl">Total</td><td class="val">${usd.format(total)}</td></tr>`;
+  $('calcnote').textContent = cfg.appraised > 0
+    ? `That is ${usd.format(total / cfg.appraised * 1000)} per $1,000 of appraised value.` : '';
+
+  const saved = Math.min(cfg.appraised, cfg.exemption) * r * exemptMills / 1000;
+  $('savedbox').hidden = !(saved > 0);
+  $('saved-text').innerHTML =
+    `The <b>${usd0.format(cfg.exemption)}</b> homestead exemption on the first ${exemptMills.toFixed(0)} mills ` +
+    (mine ? `saved you <b>${usd.format(saved)}</b> this year.` : `takes <b>${usd.format(saved)}</b> off this bill.`) +
+    ` It is the same amount at every home value.`;
+
+  /* --- services --- */
+  $('fn-title').textContent = mine ? 'Your bill, service by service' : 'This home\u2019s bill, service by service';
+  const ls = lines(tax);
+  const shown = apportion(ls.map(l => l.total), total);
+  const pcts = total > 0 ? apportion(ls.map(l => l.total / total * 100), 100, 10) : ls.map(() => 0);
+  ls.forEach((l, i) => {
+    l.shown = shown[i]; l.pct = pcts[i];
+    const c = apportion(l.segs.map(s => s.amount), l.shown);
+    l.segs.forEach((s, j) => { s.cents = c[j]; });
+  });
+  const max = Math.max(...ls.map(l => l.total), 1e-9);
+  const big = ls.filter(l => total > 0 && l.total >= total * 0.01);
+  const small = ls.filter(l => !big.includes(l));
+  const levies = l => l.segs.map(s => s.key).join(' ');
+  let html = big.map((l, i) =>
+    `<li class="row${l.shown === 0 ? ' zero' : ''}" data-i="${ls.indexOf(l)}" data-levies="${levies(l)}">${rowHTML(l, max, i)}</li>`).join('');
+  if (small.length) {
+    const by = {};
+    small.forEach(l => l.segs.forEach(s => { by[s.key] = (by[s.key] || 0) + s.amount; }));
+    const fold = {
+      label: `${small.length} smaller item${small.length === 1 ? '' : 's'}`,
+      sub: 'Each under 1% of the bill',
+      segs: DATA.funds.filter(f => by[f.key] > 0).map(f => ({ key: f.key, name: f.name, short: f.short, amount: by[f.key] })),
+      total: small.reduce((a, l) => a + l.total, 0),
+      shown: Math.round(small.reduce((a, l) => a + l.shown, 0) * 100) / 100,
+      pct: Math.round(small.reduce((a, l) => a + l.pct, 0) * 10) / 10
+    };
+    apportion(fold.segs.map(x => x.amount), fold.shown).forEach((v, j) => { fold.segs[j].cents = v; });
+    view.fold = fold;
+    html += `<li><button type="button" class="row more" id="more" aria-expanded="${smallOpen}" aria-controls="small-rows"
+               data-i="fold" data-levies="${fold.segs.map(s => s.key).join(' ')}">${rowHTML(fold, max, big.length)}</button>
+      <ul class="rows small" id="small-rows"${smallOpen ? '' : ' hidden'}>${small.map((l, i) =>
+        `<li class="row${l.shown === 0 ? ' zero' : ''}" data-i="${ls.indexOf(l)}" data-levies="${levies(l)}">${rowHTML(l, max, big.length + 1 + i)}</li>`).join('')}</ul></li>`;
+  }
+  $('rows').innerHTML = html;
+
+  /* --- levies: donut, table, callout --- */
+  $('levy-title').textContent = mine ? 'Your bill by levy' : 'This home’s bill by levy';
+  const levyCents = {}, levyPct = {};
+  apportion(DATA.funds.map(f => tax[f.key]), total).forEach((v, i) => { levyCents[DATA.funds[i].key] = v; });
+  (total > 0 ? apportion(DATA.funds.map(f => tax[f.key] / total * 100), 100, 10) : DATA.funds.map(() => 0))
+    .forEach((v, i) => { levyPct[DATA.funds[i].key] = v; });
+  drawDonut(tax, total);
+  $('donut-desc').textContent = total > 0
+    ? DATA.funds.map(f => `${f.name} ${levyPct[f.key].toFixed(1)}%`).join(', ') : 'No tax at these settings';
+  $('levybody').innerHTML = DATA.funds.map(f =>
+    `<tr data-fund="${f.key}" tabindex="0">
+       <td><span class="levy-name"><i style="background:${LEVY_VAR[f.key]}"></i><span>${esc(f.name)}<small class="mills-sm">${(cfg.mills[f.key] || 0).toFixed(3)} mills</small></span></span></td>
+       <td class="r col-mills">${(cfg.mills[f.key] || 0).toFixed(3)}</td>
+       <td class="r">${usd.format(levyCents[f.key])}</td>
+       <td class="r">${total > 0 ? levyPct[f.key].toFixed(1) + '%' : '—'}</td>
+     </tr>`).join('') +
+    `<tr class="total"><td>Total<small class="mills-sm">${(exemptMills + otherMills).toFixed(3)} mills</small></td><td class="r col-mills">${(exemptMills + otherMills).toFixed(3)}</td>
+       <td class="r">${usd.format(total)}</td><td class="r">${total > 0 ? '100%' : '—'}</td></tr>`;
+
+  let callout = '';
+  if (total > 0) {
+    const largest = DATA.funds.reduce((m, f) => (tax[f.key] > tax[m.key] ? f : m), DATA.funds[0]);
+    callout = `The largest piece, <b>${levyPct[largest.key].toFixed(1)}%</b>, is the ${esc(largest.name)} levy.`;
+    const gen = DATA.funds.find(f => f.exempt), allMills = exemptMills + otherMills;
+    if (gen && allMills > 0) {
+      const millShare = (cfg.mills[gen.key] || 0) / allMills * 100;
+      if (millShare - levyPct[gen.key] >= 1) {
+        callout += ` The ${esc(gen.name)} is <b>${millShare.toFixed(1)}%</b> of the mills but only ` +
+          `<b>${levyPct[gen.key].toFixed(1)}%</b> of ${mine ? 'your' : 'this'} bill, because the homestead ` +
+          `exemption applies to its mills alone.`;
+      }
+    }
+  }
+  $('callout').innerHTML = callout;
+
+  /* --- the district's side --- */
+  const exemptValue = (DATA.meta.avOther - DATA.meta.avGeneral) / (DATA.defaults.assessmentRatio / 100);
+  const exemptHomes = Math.round(exemptValue / DATA.defaults.exemption / 1000) * 1000;
+  $('tiles').innerHTML = [
+    ['$' + abbr(DATA.meta.taxLevied), 'raised by the district&rsquo;s 2026 property tax levy'],
+    [(DATA.meta.taxLevied / DATA.meta.millLevyTotal * 100).toFixed(1) + '%',
+     `of the $${abbr(DATA.meta.millLevyTotal)} these five funds budget comes from that levy`],
+    [(exemptMills + otherMills).toFixed(3), `mills in all: ${exemptMills.toFixed(3)} with the homestead exemption, ${otherMills.toFixed(3)} without`],
+    ['$' + abbr(exemptValue), `of home value is exempt from the 20-mill levy district-wide, about ${grp.format(exemptHomes)} homes&rsquo; worth`]
+  ].map(([fig, text]) => `<div class="tile"><div class="fig">${fig}</div><p>${text}</p></div>`).join('');
+
+  $('millreadout').innerHTML =
+    `Exempt-eligible <b>${exemptMills.toFixed(3)}</b> + other <b>${otherMills.toFixed(3)}</b> ` +
+    `= total <b>${(exemptMills + otherMills).toFixed(3)}</b> mills`;
+
+  Object.assign(view, { tax, total, mine, ls, levyCents, levyPct, allMills: exemptMills + otherMills });
+  applyLevyFocus();
+  focusDonut(null);
+  hideTip();   /* whatever was hovered has just been redrawn */
+}
+
+/* ---------------- donut ---------------- */
+function ring(a0, a1, R, r) {
+  const at = (a, rad) => [(rad * Math.sin(a)).toFixed(3), (-rad * Math.cos(a)).toFixed(3)];   /* 0 = twelve o'clock */
+  const large = a1 - a0 > Math.PI ? 1 : 0;
+  const [x0, y0] = at(a0, R), [x1, y1] = at(a1, R), [x2, y2] = at(a1, r), [x3, y3] = at(a0, r);
+  return `M${x0} ${y0}A${R} ${R} 0 ${large} 1 ${x1} ${y1}L${x2} ${y2}A${r} ${r} 0 ${large} 0 ${x3} ${y3}Z`;
+}
+function drawDonut(tax, total) {
+  const R = 100, r = 61, parts = [];
+  let a0 = 0;
+  for (const f of DATA.funds) {
+    const share = total > 0 ? tax[f.key] / total : 0;
+    if (share <= 0) continue;
+    const attrs = `style="fill:${LEVY_VAR[f.key]}" data-fund="${f.key}"`;
+    if (share > 0.9999) {
+      parts.push(`<path d="${ring(0, Math.PI, R, r)}" ${attrs}></path><path d="${ring(Math.PI, 2 * Math.PI, R, r)}" ${attrs}></path>`);
+      break;
+    }
+    const a1 = a0 + share * 2 * Math.PI;
+    parts.push(`<path d="${ring(a0, a1, R, r)}" ${attrs}></path>`);
+    a0 = a1;
+  }
+  $('donut-slices').innerHTML = parts.join('');
+}
+/* the hole is the readout: the whole bill at rest, one levy while it is pointed at */
+function focusDonut(key) {
+  const f = key && DATA.funds.find(x => x.key === key);
+  $('donut').classList.toggle('focusing', !!f);
+  $('donut').querySelectorAll('[data-fund]').forEach(x => x.classList.toggle('on', !!f && x.dataset.fund === key));
+  $('levybody').querySelectorAll('tr[data-fund]').forEach(x => x.classList.toggle('on', !!f && x.dataset.fund === key));
+  if (f) {
+    $('dc-label').textContent = f.short;
+    $('dc-value').textContent = usd.format(view.levyCents[key]);
+    $('dc-sub').innerHTML = (view.total > 0 ? view.levyPct[key].toFixed(1) + '% of the bill<br>' : '') +
+      (cfg.mills[key] || 0).toFixed(3) + ' mills';
+  } else {
+    $('dc-label').textContent = view.mine ? 'Your bill' : 'This bill';
+    $('dc-value').textContent = usd.format(view.total || 0);
+    $('dc-sub').textContent = (view.allMills || 0).toFixed(3) + ' mills';
+  }
+}
+const donutEl = $('donut'), levyBody = $('levybody');
+donutEl.addEventListener('mouseover', e => { const x = e.target.closest('[data-fund]'); focusDonut(x ? x.dataset.fund : null); });
+donutEl.addEventListener('mouseleave', () => focusDonut(null));
+donutEl.addEventListener('click', e => { const x = e.target.closest('[data-fund]'); focusDonut(x ? x.dataset.fund : null); });
+levyBody.addEventListener('mouseover', e => { const x = e.target.closest('tr[data-fund]'); focusDonut(x ? x.dataset.fund : null); });
+levyBody.addEventListener('mouseleave', () => focusDonut(null));
+levyBody.addEventListener('focusin', e => { const x = e.target.closest('tr[data-fund]'); focusDonut(x ? x.dataset.fund : null); });
+levyBody.addEventListener('focusout', () => focusDonut(null));
+
+/* ---------------- levy chips: trace one levy through the services ---------------- */
+let pinned = null, hovered = null;
+$('chips').innerHTML = DATA.funds.map(f =>
+  `<li><button type="button" class="chip" data-levy="${f.key}" aria-pressed="false">` +
+  `<i style="background:${LEVY_VAR[f.key]}"></i>${esc(f.name)}</button></li>`).join('');
+function applyLevyFocus() {
+  const key = hovered || pinned, rows = $('rows');
+  rows.classList.toggle('focusing', !!key);
+  rows.querySelectorAll('.seg').forEach(s => s.classList.toggle('on', s.dataset.levy === key));
+  rows.querySelectorAll('.row').forEach(x => x.classList.toggle('has', !!key && (x.dataset.levies || '').split(' ').includes(key)));
+  document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.levy === pinned)));
+  const status = $('chip-status'), f = key && DATA.funds.find(x => x.key === key);
+  if (f && view.ls) {
+    const n = view.ls.filter(l => l.segs.some(s => s.key === key && s.amount > 0)).length;
+    status.innerHTML = `${esc(f.name)}: <b>${usd.format(view.levyCents[key])}</b> of ${view.mine ? 'your' : 'this'} bill, ` +
+      `across ${n} service${n === 1 ? '' : 's'}.`;
+  } else {
+    status.textContent = 'Select a levy to trace its dollars.';
+  }
+}
+const chipsEl = $('chips');
+chipsEl.addEventListener('mouseover', e => { const c = e.target.closest('.chip'); hovered = c ? c.dataset.levy : null; applyLevyFocus(); });
+chipsEl.addEventListener('mouseleave', () => { hovered = null; applyLevyFocus(); });
+chipsEl.addEventListener('focusin', e => { const c = e.target.closest('.chip'); hovered = c ? c.dataset.levy : null; applyLevyFocus(); });
+chipsEl.addEventListener('focusout', () => { hovered = null; applyLevyFocus(); });
+chipsEl.addEventListener('click', e => {
+  const c = e.target.closest('.chip');
+  if (!c) return;
+  pinned = pinned === c.dataset.levy ? null : c.dataset.levy;
+  applyLevyFocus();
+});
+$('rows').addEventListener('click', e => {
+  const b = e.target.closest('#more');
+  if (!b) return;
+  smallOpen = !smallOpen;
+  b.setAttribute('aria-expanded', String(smallOpen));
+  $('small-rows').hidden = !smallOpen;
+});
+
+/* ---------------- hover: the levy breakdown beside the pointer ---------------- */
+/* Pointer devices only. On touch the same dollars are in each row's small print, and a
+   tapped tooltip would just stick. */
+const tip = $('tip'), canHover = matchMedia('(hover: hover)');
+function hideTip() { tip.classList.remove('on'); }
+function placeTip(ev, anchor) {
+  const t = tip.getBoundingClientRect();
+  let x = ev.clientX + 18;
+  if (x + t.width > innerWidth - 12) x = ev.clientX - t.width - 18;          /* flip to the pointer's left */
+  /* sit under the hovered row so its own figures stay readable */
+  const a = anchor.getBoundingClientRect();
+  let y = a.bottom + 6;
+  if (y + t.height > innerHeight - 12) y = a.top - t.height - 6;
+  tip.style.left = Math.max(8, x) + 'px';
+  tip.style.top = Math.min(Math.max(y, 8), innerHeight - t.height - 12) + 'px';
+}
+function tipLine(key, name, amount, sum) {
+  return `<div class="tr${sum ? ' tsum' : ''}">${key ? `<i style="background:${LEVY_VAR[key]}"></i>` : ''}` +
+         `<span class="nm">${esc(name)}</span><span class="vv">${amount}</span></div>`;
+}
+function showRowTip(el, ev) {
+  const l = el.dataset.i === 'fold' ? view.fold : (view.ls || [])[+el.dataset.i];
+  if (!l) { hideTip(); return; }
+  const live = l.segs.filter(x => x.amount > 0);
+  const segs = (live.length ? live : l.segs).slice().sort((a, b) => b.amount - a.amount);
+  tip.innerHTML =
+    `<div class="tt">${esc(l.label)}</div>` +
+    `<div class="tg">Paid from ${segs.length > 1 ? 'these levies' : 'this levy'}</div>` +
+    segs.map(x => tipLine(x.key, x.name, usd.format(x.cents))).join('') +
+    tipLine(null, 'Total', usd.format(l.shown), true);
+  tip.classList.add('on');
+  placeTip(ev, el);
+}
+$('rows').addEventListener('mousemove', e => {
+  if (!canHover.matches) return;
+  const el = e.target.closest('[data-i]');
+  if (el) showRowTip(el, e); else hideTip();
+});
+$('rows').addEventListener('mouseleave', hideTip);
+
+/* ---------------- whose receipt ---------------- */
+function renderWhose() {
+  const v = '<b>' + usd0.format(state.value) + '</b>', note = $('whose-note');
+  if (state.own === 'yes') {
+    $('whose-tag').textContent = 'Your home';
+    $('whose-line').innerHTML = 'Appraised at ' + v;
+    note.hidden = true;
+  } else {
+    $('whose-tag').textContent = 'Example';
+    $('whose-line').innerHTML = 'A home appraised at ' + v;
+    note.textContent = state.own === 'unsure'
+      ? 'You weren’t sure of your home’s value, so this uses an example. Change your answers any time to enter your own.'
+      : 'You told us you don’t own a home, so this uses an example. Renters don’t get a property tax bill, but landlords do, and part of that cost is often reflected in rent.';
+    note.hidden = false;
+  }
+}
+
+/* ---------------- the question flow ---------------- */
+/* Three screens in one file. Each answer writes the URL hash, so the browser's Back button
+   steps between screens like separate pages, and a receipt can be linked directly:
+   #step=receipt&value=185000&own=yes */
+const EXAMPLE = DATA.defaults.illustrationValue;
+const SCREENS = ['own', 'value', 'receipt'];
+let current = 'own', booted = false, lastOwnerValue = null, revealTimer = 0;
+const valueInput = $('value-input'), valueErr = $('value-err');
+
+function parseMoney(text) {
+  const t = String(text).trim().toLowerCase().replace(/[$,\s]/g, '');
+  const m = t.match(/^(\d+(?:\.\d+)?)(k|m)?$/);
+  if (!m) return NaN;
+  return parseFloat(m[1]) * (m[2] === 'k' ? 1e3 : m[2] === 'm' ? 1e6 : 1);
+}
+function readHash() {
+  try { return new URLSearchParams(location.hash.replace(/^#/, '')); }
+  catch (e) { return new URLSearchParams(); }
+}
+
+function show(name) {
+  for (const k of SCREENS) $('screen-' + k).hidden = k !== name;
+  const body = $('receipt-body');
+  body.hidden = name !== 'receipt';
+  hideTip();
+  if (name === current) return;
+  current = name;
+  if (!booted) return;                      /* first paint: no animation, no focus jump */
+  const el = $('screen-' + name);
+  el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter');
+  if (name === 'receipt') {
+    body.classList.add('reveal');
+    clearTimeout(revealTimer);
+    revealTimer = setTimeout(() => body.classList.remove('reveal'), 1600);   /* so later re-renders don't replay it */
+  }
+  try { scrollTo(0, 0); } catch (e) {}
+  const target = name === 'value' ? valueInput : el.querySelector('[data-focus]');
+  if (target) target.focus({ preventScroll: true });
+  dispatchEvent(new CustomEvent('receipt:navigate'));
+}
+
+function apply(params) {
+  const step = params.get('step');
+  const v = parseFloat(params.get('value'));
+  const own = params.get('own');
+  if (step === 'receipt' && v > 0 && v <= 1e8 && ['yes', 'no', 'unsure'].includes(own)) {
+    state.own = own; state.value = v; cfg.appraised = v;
+    if (own === 'yes') lastOwnerValue = v;
+    render(booted);
+    renderWhose();
+    show('receipt');
+  } else if (step === 'value') {
+    if (!valueInput.value && lastOwnerValue) valueInput.value = grp.format(lastOwnerValue);
+    show('value');
+  } else {
+    show('own');
+  }
+}
+function go(params) {
+  const q = new URLSearchParams(params);
+  apply(q);
+  try { if (location.hash !== '#' + q) location.hash = q.toString(); } catch (e) {}
+}
+addEventListener('hashchange', () => apply(readHash()));
+
+document.querySelectorAll('.choice').forEach(btn => btn.addEventListener('click', () => {
+  if (btn.dataset.own === 'yes') go({ step: 'value' });
+  else go({ step: 'receipt', value: EXAMPLE, own: 'no' });
+}));
+document.querySelectorAll('[data-nav]').forEach(btn =>
+  btn.addEventListener('click', () => go({ step: btn.dataset.nav })));
+$('use-example').addEventListener('click', () => go({ step: 'receipt', value: EXAMPLE, own: 'unsure' }));
+
+function fieldError(msg) {
+  valueErr.textContent = msg;
+  if (msg) valueInput.setAttribute('aria-invalid', 'true'); else valueInput.removeAttribute('aria-invalid');
+}
+$('value-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = parseMoney(valueInput.value);
+  if (!(v > 0)) { fieldError('Enter the appraised value as a number, for example 185,000.'); valueInput.focus(); return; }
+  if (v > 1e8)  { fieldError('That is more than $100 million. Check the number and try again.'); valueInput.focus(); return; }
+  fieldError('');
+  go({ step: 'receipt', value: Math.round(v), own: 'yes' });
+});
+valueInput.addEventListener('input', () => { if (valueErr.textContent) fieldError(''); });
+valueInput.addEventListener('blur', () => {
+  const v = parseMoney(valueInput.value);
+  if (v > 0) valueInput.value = grp.format(Math.round(v));
+});
+
+/* ---------------- district settings ---------------- */
+$('millsgrid').innerHTML = DATA.funds.map(f =>
+  `<div><label for="m-${f.key}"><i style="background:${LEVY_VAR[f.key]}"></i>${esc(f.name)}${f.exempt ? ' — exempt-eligible' : ''}</label>
+   <input id="m-${f.key}" type="number" step="0.001" min="0" value="${f.mills.toFixed(3)}" data-fund="${f.key}"></div>`).join('');
+$('millsgrid').addEventListener('input', e => {
+  const k = e.target.dataset.fund;
+  if (k) { cfg.mills[k] = Math.max(0, parseFloat(e.target.value) || 0); render(false); }
+});
+$('ratio').addEventListener('input', e => { cfg.ratio = Math.max(0, parseFloat(e.target.value) || 0); render(false); });
+$('exempt').addEventListener('input', e => { cfg.exemption = Math.max(0, parseFloat(e.target.value) || 0); render(false); });
+$('reset').addEventListener('click', () => {
+  DATA.funds.forEach(f => { cfg.mills[f.key] = f.mills; $('m-' + f.key).value = f.mills.toFixed(3); });
+  cfg.ratio = DATA.defaults.assessmentRatio; $('ratio').value = cfg.ratio;
+  cfg.exemption = DATA.defaults.exemption;   $('exempt').value = cfg.exemption;
+  render(false);
+});
+
+$('no-sub').textContent = 'We’ll use a ' + usd0.format(EXAMPLE) + ' example home.';
+$('use-example').textContent = 'Not sure? Use a ' + usd0.format(EXAMPLE) + ' example';
+render(false);
+apply(readHash());
+booted = true;
+</script>
+<script>
+  /* Iframe support. Sends the host page two things and nothing else -- never any
+     input the visitor typed:
+       { schoolTaxReceiptHeight: <px> }     whenever the content height changes
+       { schoolTaxReceiptNavigated: true }  when the visitor moves to another screen
+     No-op when the page is opened directly rather than framed. */
+  (function () {
+    if (window.parent === window) return;
+    var last = 0;
+    /* measure the body, not the document: the document is never shorter than the
+       frame itself, so it could only ever report growth, never a shorter screen */
+    function post() {
+      var h = Math.ceil(document.body.getBoundingClientRect().height);
+      if (h !== last) { last = h; parent.postMessage({ schoolTaxReceiptHeight: h }, '*'); }
+    }
+    if (window.ResizeObserver) new ResizeObserver(post).observe(document.body);
+    addEventListener('load', post);
+    addEventListener('resize', post);
+    addEventListener('receipt:navigate', function () {
+      post();
+      parent.postMessage({ schoolTaxReceiptNavigated: true }, '*');
+    });
+    post();
+  })();
+</script>
+</body>
+</html>
