@@ -128,6 +128,7 @@
     font-family: "Besley", Georgia, "Times New Roman", serif; font-weight: 600;
     font-size: clamp(19px, 2.4vw, 23px); line-height: 1.2; margin: 14px 0 0; color: var(--on-band);
   }
+  .scope { font-size: 14px; line-height: 1.45; color: var(--on-band-2); margin: 6px 0 0; max-width: 64ch; }
   .screen { margin-top: clamp(30px, 6vw, 58px); }
   
   /* ---------- questions ---------- */
@@ -343,7 +344,7 @@
   .callout b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
   
   /* ---------- context figures ---------- */
-  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 28px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 28px; }
   .tile { padding: 2px 22px; border-left: 1px solid var(--rule); }
   .tile:first-child { border-left: 0; padding-left: 0; }
   .tile .fig {
@@ -458,8 +459,8 @@
   </style>
 </head>
 <body>
-<div class="wrap">
   <nav class="sitebar" aria-label="Site"><span><a href="../../index.html">&larr; Hai (David) Guo</a><span class="sep">/</span><a href="../../projects.html">Projects</a></span><span>What your property tax pays for</span></nav>
+<div class="wrap">
 
   <div class="band">
     <div class="stripe"></div>
@@ -470,6 +471,8 @@
           <span class="pill">Estimate &middot; not a tax bill</span>
         </div>
         <h1>What your property tax pays for</h1>
+        <p class="scope">This covers only the USD&nbsp;259 school district&rsquo;s share of your property
+          tax. City, county and state property taxes are not included.</p>
       </header>
 
       <!-- ---------------- question 1 ---------------- -->
@@ -565,8 +568,8 @@
       <p class="eyebrow">Where it goes</p>
       <h2 id="fn-title">Your bill, service by service</h2>
       <p class="lede">
-        Every service on the bill, largest first. Bar colors show which levy pays for each. Hover
-        over a row for the dollar breakdown.
+        Every school district service funded by your bill is listed from largest to smallest. Bar
+        colors show which levy supports each service. Hover over a row for the dollar breakdown.
       </p>
       <div class="chips-row">
         <ul class="chips" id="chips"></ul>
@@ -609,7 +612,7 @@
     <!-- ---------------- context ---------------- -->
     <section aria-labelledby="ctx-title">
       <p class="eyebrow">For context</p>
-      <h2 id="ctx-title">The district&rsquo;s side of the ledger</h2>
+      <h2 id="ctx-title">The district&rsquo;s budget at a glance</h2>
       <div class="tiles" id="tiles"></div>
     </section>
 
@@ -619,7 +622,7 @@
       <div class="settings-body">
         <p>
           These are the adopted 2026&ndash;27 figures. Change any of them and the whole receipt
-          recalculates &mdash; useful for modelling a mill-rate decision before a hearing.
+          recalculates &mdash; useful for modeling a mill-rate decision before a hearing.
         </p>
         <div class="set-grid" id="millsgrid"></div>
         <div class="set-grid">
@@ -628,7 +631,7 @@
             <input id="ratio" type="number" step="0.1" min="0" max="100" value="11.5">
           </div>
           <div>
-            <label for="exempt">Homestead exemption, appraised ($)</label>
+            <label for="exempt">Residential property exemption from the statewide school mill levy ($ of appraised value)</label>
             <input id="exempt" type="number" step="1000" min="0" value="75000">
           </div>
         </div>
@@ -643,7 +646,7 @@
       <p><b>About this tool.</b> Built by Hai (David) Guo from the district&rsquo;s published budget documents. It is not an official product of Wichita Public Schools.</p>
       <p>
         <b>Sources.</b> Mill rates and fund totals come from the USD&nbsp;259 2026&ndash;27 budget
-        documents (draft dated 8/18/2026; Notice of Hearing 9/14/2026). The service categories, and the
+        documents (Notice of Hearing 9/14/2026). The service categories, and the
         share of each levy assigned to each service, were prepared for this receipt.
       </p>
       <p>
@@ -654,9 +657,9 @@
         changes with the home value.
       </p>
       <p>
-        <b>What this is not.</b> An estimate for a residential homestead, not a tax bill. It ignores
-        delinquency, special assessments, protests and any exemption other than the statewide homestead
-        exemption, and it covers only the school district&rsquo;s levies &mdash; not the county, city or
+        <b>What this is not.</b> An estimate for residential property, not a tax bill. It ignores
+        delinquency, special assessments, protests and any exemption other than the residential property
+        exemption from the statewide school mill levy, and it covers only the school district&rsquo;s levies &mdash; not the county, city or
         state. Tax dollars are not earmarked to particular services inside a fund; the split here is
         pro rata, not a tracing.
       </p>
@@ -664,14 +667,14 @@
   </main>
 
   <footer class="col foot">
-    <p>Figures from the USD&nbsp;259 2026&ndash;27 proposed budget. School district levies only.</p>
+    <p>Figures from the USD&nbsp;259 2026&ndash;27 budget. School district levies only.</p>
   </footer>
 </div>
 
 <div id="tip" role="tooltip" aria-hidden="true"></div>
 
 <script>
-const DATA = {"meta":{"district":"Wichita Public Schools (USD 259)","fiscalYear":"2026-27","source":"2026-27BudgetDocumentsDraft.pdf, Notice of Hearing 9/14/2026","millLevyTotal":814461501,"taxLevied":213210612,"avGeneral":3578722551,"avOther":4487344540,"categoriesSource":{"workbook":"Tax Receipt Ideas 08-18-2026.xlsx","sheet":"idea 4"}},"defaults":{"assessmentRatio":11.5,"exemption":75000,"illustrationValue":200000},"funds":[{"key":"general","name":"General Fund","mills":20.0,"exempt":true,"total":462628514,"short":"General Fund"},{"key":"lob","name":"Supplemental General (LOB)","mills":17.1,"exempt":false,"total":153360112,"short":"LOB"},{"key":"capital","name":"Capital Outlay","mills":8.0,"exempt":false,"total":143822715,"short":"Capital Outlay"},{"key":"bond","name":"Bond & Interest #1","mills":6.2,"exempt":false,"total":53580160,"short":"Bond & Interest"},{"key":"liability","name":"Special Liability Expense","mills":0.1,"exempt":false,"total":1070000,"short":"Special Liability"}],"categories":[{"label":"Teachers, Paras, Classroom Costs","workbookLabel":"Teachers, Paras, Classroom Costs","byFund":{"general":0.23,"lob":0.19781978197819783}},{"label":"Counselors, Social Workers, Related Costs","workbookLabel":"Counselors, Social Workers, Related Costs","byFund":{"general":0.1,"lob":0.086008600860086}},{"label":"Teacher Improvement Costs","workbookLabel":"Teacher Improvement Costs","byFund":{"general":0.07,"lob":0.0602060206020602}},{"label":"School Administration (Principal and Office Support)","workbookLabel":"School Administration (Principal and Office Support)","byFund":{"general":0.05}},{"label":"General Administration (District Leadership and Support Staff)","workbookLabel":"General Administration (District Leadership and Support Staff)","byFund":{"general":0.0}},{"label":"Transportation","workbookLabel":"Transportation","byFund":{"general":0.05,"lob":0.043004300430043}},{"label":"4-Year-Old/Pre-K Services","workbookLabel":"4-Year-Old/Pre-K Services","byFund":{"general":0.015}},{"label":"Education Supports - At-Risk Students","workbookLabel":"Education Supports - At-Risk Students","byFund":{"general":0.235,"lob":0.1909190919091909}},{"label":"English Learner Programs and Services","workbookLabel":"English Learner Programs and Services","byFund":{"general":0.03,"lob":0.025702570257025704}},{"label":"Virtual Learning Programs","workbookLabel":"Virtual Learning Programs","byFund":{"general":0.005}},{"label":"Professional Development","workbookLabel":"Professional Dev","byFund":{"general":0.005}},{"label":"Special Education Services","workbookLabel":"Special Education Services","byFund":{"general":0.185,"lob":0.33083308330833083}},{"label":"Career and Technical Education Services","workbookLabel":"Career and Technical Education Services","byFund":{"general":0.02,"lob":0.0215021502150215}},{"label":"Textbooks","workbookLabel":"Textbooks","byFund":{"general":0.005}},{"label":"Central Services (Payroll, HR, Accounting, Purchasing, etc.)","workbookLabel":"Central Services (Payroll, HR, Accounting, Purchasing, etc.)","byFund":{"lob":0.0258025802580258}},{"label":"Central Services - IT Needs","workbookLabel":"Central Services - IT Needs","byFund":{"lob":0.017201720172017203}},{"label":"Parents as Teachers Program","workbookLabel":"Parents as Teacher Programs","byFund":{"lob":0.001000100010001}},{"label":"Repairs and Maintenance","workbookLabel":"Repairs and Maintenance","byFund":{"capital":0.637957015}},{"label":"Building Improvements","workbookLabel":"Building Improvements","byFund":{"capital":0.092712059}},{"label":"IT Needs (Computers, Network and Security, Software)","workbookLabel":"IT Needs (Computers, Network and Security, Software)","byFund":{"capital":0.269330926}},{"label":"Facilities","workbookLabel":"Facilities","byFund":{"bond":1.0}},{"label":"Insurance & Judgements","workbookLabel":"Insurance & Judgements","byFund":{"liability":1.0}}]};
+const DATA = {"meta":{"district":"Wichita Public Schools (USD 259)","fiscalYear":"2026-27","source":"2026-27BudgetDocumentsDraft.pdf, Notice of Hearing 9/14/2026","millLevyTotal":814461501,"taxLevied":213210612,"avGeneral":3578722551,"avOther":4487344540,"categoriesSource":{"workbook":"Tax Receipt Ideas 10-13-2026.xlsx","sheet":"idea 4"}},"defaults":{"assessmentRatio":11.5,"exemption":75000,"illustrationValue":200000},"funds":[{"key":"general","name":"General Fund","mills":20.0,"exempt":true,"total":462628514,"short":"General Fund"},{"key":"lob","name":"Supplemental General (LOB)","mills":17.1,"exempt":false,"total":153360112,"short":"LOB"},{"key":"capital","name":"Capital Outlay","mills":8.0,"exempt":false,"total":143822715,"short":"Capital Outlay"},{"key":"bond","name":"Bond & Interest","mills":6.2,"exempt":false,"total":53580160,"short":"Bond & Interest"},{"key":"liability","name":"Special Liability Expense","mills":0.1,"exempt":false,"total":1070000,"short":"Special Liability"}],"categories":[{"label":"Teachers, Paras, Classroom Costs","workbookLabel":"Teachers, Paras, Classroom Costs","byFund":{"general":0.2371,"lob":0.19781978197819783}},{"label":"Counselors, Social Workers, Related Costs","workbookLabel":"Counselors, Social Workers, Related Costs","byFund":{"general":0.024,"lob":0.086008600860086}},{"label":"Teacher Improvement Costs","workbookLabel":"Teacher Improvement Costs","byFund":{"general":0.0289,"lob":0.0602060206020602}},{"label":"School Administration (Principal and Office Support)","workbookLabel":"School Administration (Principal and Office Support)","byFund":{"general":0.0925}},{"label":"General Administration (District Leadership and Support Staff)","workbookLabel":"General Administration (District Leadership and Support Staff)","byFund":{"general":0.0086}},{"label":"Maintenance and Operation","workbookLabel":"Maintenance and Operation","byFund":{"general":0.1089}},{"label":"4-Year-Old/Pre-K Services","workbookLabel":"4-Year-Old/Pre-K Services","byFund":{"general":0.015}},{"label":"Education Supports - At-Risk Students","workbookLabel":"Education Supports - At-Risk Students","byFund":{"general":0.235,"lob":0.1909190919091909}},{"label":"English Learner Programs and Services","workbookLabel":"English Learner Programs and Services","byFund":{"general":0.03,"lob":0.025702570257025704}},{"label":"Virtual Learning Programs","workbookLabel":"Virtual Learning Programs","byFund":{"general":0.005}},{"label":"Professional Development","workbookLabel":"Professional Dev","byFund":{"general":0.005}},{"label":"Special Education Services","workbookLabel":"Special Education Services","byFund":{"general":0.185,"lob":0.33083308330833083}},{"label":"Career and Technical Education Services","workbookLabel":"Career and Technical Education Services","byFund":{"general":0.02,"lob":0.0215021502150215}},{"label":"Textbooks","workbookLabel":"Textbooks","byFund":{"general":0.005}},{"label":"Central Services (Payroll, HR, Accounting, Purchasing, etc.)","workbookLabel":"Central Services (Payroll, HR, Accounting, Purchasing, etc.)","byFund":{"lob":0.0258025802580258}},{"label":"Transportation","workbookLabel":"Transportation","byFund":{"lob":0.043004300430043}},{"label":"Central Services - IT Needs","workbookLabel":"Central Services - IT Needs","byFund":{"lob":0.017201720172017203}},{"label":"Parents as Teachers Program","workbookLabel":"Parents as Teacher Programs","byFund":{"lob":0.001000100010001}},{"label":"Repairs and Maintenance","workbookLabel":"Repairs and Maintenance","byFund":{"capital":0.637957015}},{"label":"Building Improvements","workbookLabel":"Building Improvements","byFund":{"capital":0.092712059}},{"label":"IT Needs (Computers, Network and Security, Software)","workbookLabel":"IT Needs (Computers, Network and Security, Software)","byFund":{"capital":0.269330926}},{"label":"Facilities","workbookLabel":"Facilities","byFund":{"bond":1.0}},{"label":"Insurance & Judgments","workbookLabel":"Insurance & Judgements","byFund":{"liability":1.0}}]};
 
 /* ---------------- state ---------------- */
 const cfg = {
@@ -778,7 +781,7 @@ function render(animate) {
   const exBase = Math.max(cfg.appraised - cfg.exemption, 0);
   const m = x => String(+x.toFixed(3));   /* 20.000 -> "20", 31.400 -> "31.4" */
   const calc = [
-    [`<span class="what">${m(exemptMills)} mills, after the homestead exemption</span>` +
+    [`<span class="what">${m(exemptMills)} mills, after the residential property exemption</span>` +
      `<span class="how">(${usd0.format(cfg.appraised)} − ${usd0.format(cfg.exemption)}) × ${cfg.ratio}% × ${m(exemptMills)} ÷ 1,000</span>`,
      exBase * r * exemptMills / 1000],
     [`<span class="what">${m(otherMills)} mills, on the full value</span>` +
@@ -795,12 +798,12 @@ function render(animate) {
   const saved = Math.min(cfg.appraised, cfg.exemption) * r * exemptMills / 1000;
   $('savedbox').hidden = !(saved > 0);
   $('saved-text').innerHTML =
-    `The <b>${usd0.format(cfg.exemption)}</b> homestead exemption on the first ${exemptMills.toFixed(0)} mills ` +
+    `The <b>${usd0.format(cfg.exemption)}</b> residential property exemption from the statewide school mill levy (the first ${exemptMills.toFixed(0)} mills) ` +
     (mine ? `saved you <b>${usd.format(saved)}</b> this year.` : `takes <b>${usd.format(saved)}</b> off this bill.`) +
     ` It is the same amount at every home value.`;
 
   /* --- services --- */
-  $('fn-title').textContent = mine ? 'Your bill, service by service' : 'This home\u2019s bill, service by service';
+  $('fn-title').textContent = mine ? 'Your bill, service by service' : 'This home’s bill, service by service';
   const ls = lines(tax);
   const shown = apportion(ls.map(l => l.total), total);
   const pcts = total > 0 ? apportion(ls.map(l => l.total / total * 100), 100, 10) : ls.map(() => 0);
@@ -863,22 +866,19 @@ function render(animate) {
       const millShare = (cfg.mills[gen.key] || 0) / allMills * 100;
       if (millShare - levyPct[gen.key] >= 1) {
         callout += ` The ${esc(gen.name)} is <b>${millShare.toFixed(1)}%</b> of the mills but only ` +
-          `<b>${levyPct[gen.key].toFixed(1)}%</b> of ${mine ? 'your' : 'this'} bill, because the homestead ` +
-          `exemption applies to its mills alone.`;
+          `<b>${levyPct[gen.key].toFixed(1)}%</b> of ${mine ? 'your' : 'this'} bill, because the residential ` +
+          `property exemption applies to its mills alone.`;
       }
     }
   }
   $('callout').innerHTML = callout;
 
   /* --- the district's side --- */
-  const exemptValue = (DATA.meta.avOther - DATA.meta.avGeneral) / (DATA.defaults.assessmentRatio / 100);
-  const exemptHomes = Math.round(exemptValue / DATA.defaults.exemption / 1000) * 1000;
   $('tiles').innerHTML = [
     ['$' + abbr(DATA.meta.taxLevied), 'raised by the district&rsquo;s 2026 property tax levy'],
     [(DATA.meta.taxLevied / DATA.meta.millLevyTotal * 100).toFixed(1) + '%',
-     `of the $${abbr(DATA.meta.millLevyTotal)} these five funds budget comes from that levy`],
-    [(exemptMills + otherMills).toFixed(3), `mills in all: ${exemptMills.toFixed(3)} with the homestead exemption, ${otherMills.toFixed(3)} without`],
-    ['$' + abbr(exemptValue), `of home value is exempt from the 20-mill levy district-wide, about ${grp.format(exemptHomes)} homes&rsquo; worth`]
+     `of the $${abbr(DATA.meta.millLevyTotal)} total budget of the five funds listed above comes from tax levies`],
+    [(exemptMills + otherMills).toFixed(3), `mills in all: ${exemptMills.toFixed(3)} with the residential property exemption, ${otherMills.toFixed(3)} without`]
   ].map(([fig, text]) => `<div class="tile"><div class="fig">${fig}</div><p>${text}</p></div>`).join('');
 
   $('millreadout').innerHTML =
