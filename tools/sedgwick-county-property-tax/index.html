@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>What You Pay</title>
+<meta name="description" content="Estimate of a Sedgwick County, Kansas homeowner's property tax by ZIP code and tax unit, split by taxing jurisdiction and by County function. Not an official County tool.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --ground:#EDEFF3; --surface:#FFFFFF; --surface-2:#F6F7FA; --surface-3:#EAEDF2;
+  --ink:#131822; --ink-2:#4E5768; --ink-3:#717B8D; --rule:#DBDFE7; --rule-2:#C3C9D4;
+  --chrome:#1B3A5C; --chrome-ink:#FFFFFF; --focus:#1667A8; --danger:#B3261E;
+  --j-state:#6B5BA8; --j-county:#1667A8; --j-city:#C4562F; --j-usd:#0E8F82;
+  --j-township:#8A6D1F; --j-fire:#B3261E; --j-other:#7A8496;
+  --f-1:#1667A8; --f-2:#C4562F; --f-3:#0E8F82; --f-4:#A87420; --f-5:#6B5BA8; --f-6:#3F8A3A; --f-7:#6E7889;
+  --shadow:0 1px 2px rgba(19,24,34,.06), 0 8px 24px -12px rgba(19,24,34,.18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground:#0E1116; --surface:#161A21; --surface-2:#1C212A; --surface-3:#232935;
+    --ink:#E8EBF0; --ink-2:#A3ACBC; --ink-3:#808999; --rule:#2A303B; --rule-2:#3A424F;
+    --chrome:#9CC4E8; --chrome-ink:#0E1116; --focus:#7FB3E0; --danger:#F2A09A;
+    --j-state:#9384D8; --j-county:#4A93D4; --j-city:#D9714A; --j-usd:#17A08F;
+    --j-township:#C9A646; --j-fire:#E0645B; --j-other:#8C96A8;
+    --f-1:#4A93D4; --f-2:#D9714A; --f-3:#17A08F; --f-4:#C99A3A; --f-5:#9384D8; --f-6:#5DAA57; --f-7:#8C96A8;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:#0E1116; --surface:#161A21; --surface-2:#1C212A; --surface-3:#232935;
+  --ink:#E8EBF0; --ink-2:#A3ACBC; --ink-3:#808999; --rule:#2A303B; --rule-2:#3A424F;
+  --chrome:#9CC4E8; --chrome-ink:#0E1116; --focus:#7FB3E0; --danger:#F2A09A;
+  --j-state:#9384D8; --j-county:#4A93D4; --j-city:#D9714A; --j-usd:#17A08F;
+  --j-township:#C9A646; --j-fire:#E0645B; --j-other:#8C96A8;
+  --f-1:#4A93D4; --f-2:#D9714A; --f-3:#17A08F; --f-4:#C99A3A; --f-5:#9384D8; --f-6:#5DAA57; --f-7:#8C96A8;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: "Public Sans", ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+[hidden] { display: none !important; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 28px 20px 64px; }
+.masthead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; padding-bottom: 12px; }
+.masthead h1 { font-family: "Zilla Slab", Georgia, serif; font-weight: 700; font-size: clamp(28px, 4vw, 38px);
+  line-height: 1.1; margin: 0; letter-spacing: -.01em; }
+.masthead .sub { color: var(--ink-2); font-size: 14px; margin: 4px 0 0; }
+.stamp { margin-left: auto; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); border: 1px solid var(--rule-2);
+  border-radius: 2px; padding: 4px 8px; white-space: nowrap; }
+.rule-heavy { height: 3px; background: var(--ink); border: 0; margin: 0 0 2px; }
+.rule-hair { height: 1px; background: var(--rule-2); border: 0; margin: 0 0 22px; }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; box-shadow: var(--shadow);
+  padding: 22px; margin-bottom: 20px; min-width: 0; }
+.eyebrow { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--ink-3); margin: 0 0 8px; }
+h2 { font-family: "Zilla Slab", Georgia, serif; font-weight: 600; font-size: 21px; margin: 0 0 4px; letter-spacing: -.005em; }
+.lede { color: var(--ink-2); font-size: 14px; margin: 0 0 14px; max-width: 70ch; }
+.mono, .num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+/* inputs */
+.inputs { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px 20px; }
+.field label, .field .label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.field .hint { font-size: 12.5px; color: var(--ink-3); margin: 6px 0 0; }
+.money { position: relative; }
+.money span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  font-family: "IBM Plex Mono", monospace; color: var(--ink-3); font-size: 18px; pointer-events: none; }
+input[type=text], select {
+  width: 100%; max-width: 100%; font: inherit; color: var(--ink); background: var(--surface-2);
+  border: 1px solid var(--rule-2); border-radius: 3px; padding: 9px 12px; }
+input.big-in { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 500; padding-left: 28px; }
+input#zip { font-family: "IBM Plex Mono", monospace; font-size: 20px; font-weight: 500; letter-spacing: .04em; }
+input[aria-invalid="true"] { border-color: var(--danger); }
+.err { color: var(--danger); font-size: 13px; margin: 6px 0 0; min-height: 1.2em; }
+.field { min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+select { min-width: 0; text-overflow: ellipsis; }
+.checkrow { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--ink-2); }
+.checkrow input { margin-top: 3px; }
+.exempt-amt { display: inline-flex; align-items: center; gap: 6px; }
+.exempt-amt input { width: 120px; padding: 4px 8px; font-family: "IBM Plex Mono", monospace; }
+
+/* zip card */
+.zipcard { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin: 4px 0 14px; }
+.kv { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px; min-width: 0; }
+.kv .k { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-family: "IBM Plex Mono", monospace; }
+.kv .v { font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+.callout { font-size: 13.5px; color: var(--ink-2); border-left: 3px solid var(--chrome); padding: 4px 0 4px 12px; margin: 10px 0 0; }
+details.units { margin-top: 12px; }
+details.units summary { cursor: pointer; font-size: 13.5px; color: var(--chrome); font-weight: 600; }
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+table.data { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.data th { text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-3); font-weight: 500; padding: 8px 8px 7px 0; border-bottom: 1px solid var(--rule-2); }
+table.data td { padding: 7px 8px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.data .r { text-align: right; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 10px; padding-right: 0; }
+table.data tr.sel td { background: var(--surface-3); }
+table.data tr.total td { border-top: 1px solid var(--rule-2); border-bottom: 0; font-weight: 600; }
+table.data td .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 8px; vertical-align: 0; }
+.subt { display: block; font-size: 12px; color: var(--ink-3); }
+
+/* results */
+.hero > div { min-width: 0; }
+.hero { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); gap: 22px; align-items: start; }
+.bigsum { font-family: "Zilla Slab", Georgia, serif; font-variant-numeric: tabular-nums; font-weight: 700;
+  font-size: clamp(40px, 8vw, 58px); line-height: 1; letter-spacing: -.02em; margin: 2px 0 6px; }
+.facts { font-size: 13.5px; color: var(--ink-2); margin: 0; padding: 0; list-style: none; }
+.facts li { padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--rule); }
+.facts li b { font-family: "IBM Plex Mono", monospace; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.stack { display: flex; height: 22px; border-radius: 3px; overflow: hidden; margin: 6px 0 14px; background: var(--surface-3); }
+.stack div { height: 100%; min-width: 0; }
+.stack div + div { box-shadow: inset 2px 0 0 var(--surface); }
+.bars { display: flex; flex-direction: column; gap: 4px; }
+.brow { display: grid; grid-template-columns: minmax(0, 15ch) minmax(0,1fr) auto; gap: 12px; align-items: center; font-size: 13.5px; }
+.brow .t { min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
+.brow .t small { display: block; font-size: 11.5px; color: var(--ink-3); }
+.brow .track { height: 14px; background: var(--surface-3); border-radius: 2px; overflow: hidden; }
+.brow .fill { height: 100%; border-radius: 2px; }
+.brow .a { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.brow .a small { color: var(--ink-3); margin-left: 6px; }
+.seg { display: inline-flex; border: 1px solid var(--rule-2); border-radius: 3px; overflow: hidden; margin: 0 0 14px; max-width: 100%; flex-wrap: wrap; }
+.seg button { font: inherit; font-size: 13px; padding: 7px 12px; background: var(--surface-2); color: var(--ink-2); border: 0; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--chrome); color: var(--chrome-ink); font-weight: 600; }
+.notes { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+.notes h3 { font-size: 14px; margin: 16px 0 6px; color: var(--ink); }
+.notes p, .notes li { max-width: 80ch; }
+.notes ul { padding-left: 20px; margin: 0 0 8px; }
+.foot { font-size: 12px; color: var(--ink-3); margin-top: 8px; }
+@media (max-width: 720px) {
+  .wrap { padding: 20px 16px 48px; }
+  .panel { padding: 16px; }
+  .inputs, .hero { grid-template-columns: minmax(0,1fr); }
+  .hero > div { min-width: 0; }
+  .zipcard { grid-template-columns: 1fr 1fr; }
+  .stamp { margin-left: 0; }
+  .brow { grid-template-columns: minmax(0,1fr) auto; grid-template-areas: "t a" "track track"; gap: 2px 10px; }
+  .brow .t { grid-area: t; } .brow .a { grid-area: a; } .brow .track { grid-area: track; }
+  table.data .hide-sm { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 4px; }
+button.primary { font: inherit; font-size: 15px; font-weight: 600; color: var(--chrome-ink); background: var(--chrome);
+  border: 0; border-radius: 3px; padding: 12px 20px; cursor: pointer; }
+button.primary:hover:not(:disabled) { opacity: .88; }
+button.primary:disabled { background: var(--surface-3); color: var(--ink-3); cursor: not-allowed; }
+button.ghost { font: inherit; font-size: 14px; font-weight: 500; color: var(--ink-2); background: transparent;
+  border: 1px solid var(--rule-2); border-radius: 3px; padding: 8px 14px; cursor: pointer; white-space: nowrap; }
+button.ghost:hover { color: var(--ink); border-color: var(--ink-3); }
+details.options { border: 1px solid var(--rule); border-radius: 3px; background: var(--surface-2); }
+details.options > summary { cursor: pointer; padding: 10px 14px; font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.options-body { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 8px; }
+label.exempt-amt { font-size: 13.5px; color: var(--ink-2); flex-wrap: wrap; }
+.youbar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; padding: 14px 18px; }
+.yb-line { margin: 0; font-size: 14.5px; color: var(--ink-2); flex: 1 1 260px; min-width: 0; }
+.yb-line b { color: var(--ink); font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600; }
+.pagefoot { font-size: 12.5px; color: var(--ink-3); border-top: 1px solid var(--rule-2); padding-top: 12px; margin-top: 8px; }
+.pagefoot p { margin: 0; max-width: 80ch; } .pagefoot b { color: var(--ink-2); }
+.field.full .zipcard { margin-top: 12px; }
+h2[tabindex="-1"]:focus { outline: none; }
+h2[tabindex="-1"]:focus-visible { outline: none; }
+/* donut + departments */
+.donut-wrap { display: grid; grid-template-columns: 240px minmax(0,1fr); gap: 18px 26px; align-items: center; }
+.donut { width: 100%; max-width: 240px; height: auto; display: block; margin: 0 auto; overflow: visible; }
+.donut path { stroke: var(--surface); stroke-width: 2; cursor: pointer; }
+.donut path:focus { outline: none; }
+.donut path:focus-visible, .donut path.hot { stroke: var(--ink); stroke-width: 2.5; }
+.donut .c1 { font-family: "Zilla Slab", Georgia, serif; font-weight: 700; font-size: 26px; fill: var(--ink); }
+.donut .c2 { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: .08em; fill: var(--ink-3); text-transform: uppercase; }
+table.legend tr[data-fn] { cursor: pointer; }
+table.legend tr.hot td { background: var(--surface-3); }
+table.legend a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 3px; }
+#tip { position: fixed; z-index: 50; pointer-events: none; opacity: 0; transition: opacity .1s ease; max-width: 260px;
+  background: var(--surface); border: 1px solid var(--rule-2); border-radius: 4px; box-shadow: var(--shadow);
+  padding: 9px 12px; font-size: 12.5px; color: var(--ink); }
+#tip.on { opacity: 1; }
+#tip b { display: block; } #tip span { color: var(--ink-2); font-family: "IBM Plex Mono", monospace; }
+h3.sub { font-family: "Zilla Slab", Georgia, serif; font-weight: 600; font-size: 18px; margin: 26px 0 4px; }
+details.fn { border-top: 1px solid var(--rule); scroll-margin-top: 12px; }
+#dept details.fn:last-child { border-bottom: 1px solid var(--rule); }
+details.fn > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; gap: 10px;
+  align-items: center; padding: 10px 2px; font-weight: 600; font-size: 14.5px; }
+details.fn > summary::-webkit-details-marker { display: none; }
+details.fn > summary::after { content: "+"; color: var(--ink-3); font-family: "IBM Plex Mono", monospace; }
+details.fn[open] > summary::after { content: "\2212"; }
+details.fn > summary .sw { width: 12px; height: 12px; border-radius: 2px; }
+details.fn > summary .amt { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+.dlist { list-style: none; margin: 0 0 12px; padding: 0 0 0 22px; display: flex; flex-direction: column; gap: 6px; }
+.drow { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 12px; font-size: 13.5px; }
+.drow .dn { min-width: 0; overflow-wrap: anywhere; }
+.drow .dn small { color: var(--ink-3); font-size: 11.5px; margin-left: 4px; }
+.drow .da { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.drow .dt { grid-column: 1 / -1; height: 5px; background: var(--surface-3); border-radius: 2px; overflow: hidden; }
+.drow .dt div { height: 100%; border-radius: 2px; }
+@media (max-width: 720px) { .donut-wrap { grid-template-columns: minmax(0,1fr); } .donut { max-width: 220px; } .dlist { padding-left: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <h1>What You Pay</h1>
+      <p class="sub">A property tax estimate for homes in Sedgwick County, Kansas &middot; 2025 tax levies (2026 budgets)</p>
+    </div>
+    <div class="stamp">Demo estimate &middot; not a tax bill</div>
+  </header>
+  <hr class="rule-heavy"><hr class="rule-hair">
+
+  <!-- ================= page 1: inputs ================= -->
+  <main id="view-input" class="view">
+  <section class="panel" aria-labelledby="h-in">
+    <p class="eyebrow">Step 1 of 2 &middot; Your home</p>
+    <h2 id="h-in" tabindex="-1">Enter a home value and ZIP code</h2>
+    <p class="lede">Nothing you enter is saved or sent anywhere. The math runs in your browser.</p>
+    <form class="inputs" id="form" novalidate>
+      <div class="field">
+        <label for="value">Home market (appraised) value</label>
+        <div class="money"><span aria-hidden="true">$</span>
+          <input id="value" class="big-in" type="text" inputmode="numeric" autocomplete="off" value="200,000" aria-describedby="value-hint value-err"></div>
+        <p class="hint" id="value-hint">From the County Appraiser's spring valuation notice.</p>
+        <p class="err" id="value-err" role="alert"></p>
+      </div>
+      <div class="field">
+        <label for="zip">ZIP code</label>
+        <input id="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" list="ziplist" value="67203" aria-describedby="zip-hint zip-err">
+        <datalist id="ziplist"></datalist>
+        <p class="hint" id="zip-hint">ZIP codes within Sedgwick County.</p>
+        <p class="err" id="zip-err" role="alert"></p>
+      </div>
+
+      <div class="field full" id="unit-field" hidden>
+        <label for="unit">Your tax unit</label>
+        <select id="unit" aria-describedby="unit-hint z-callout"></select>
+        <p class="hint" id="unit-hint">Defaulted to the tax unit covering the most land in this ZIP. Your result depends on your exact tax unit; your tax bill or the County's property search shows it.</p>
+        <div class="zipcard" aria-label="ZIP code summary">
+          <div class="kv"><div class="k">Tax units in ZIP</div><div class="v num" id="z-n"></div></div>
+          <div class="kv"><div class="k">Lowest rate</div><div class="v num" id="z-min"></div></div>
+          <div class="kv"><div class="k">Highest rate</div><div class="v num" id="z-max"></div></div>
+        </div>
+        <p class="callout" id="z-callout"></p>
+        <details class="units" id="z-details">
+          <summary id="z-sum">All tax units in this ZIP</summary>
+          <div class="tbl-wrap">
+            <table class="data">
+              <caption class="sr-only" id="z-cap">Tax units in this ZIP</caption>
+              <thead><tr><th scope="col">Tax unit</th><th scope="col" class="hide-sm">City / township</th><th scope="col" class="hide-sm">School district</th><th scope="col" class="r">Share of ZIP area</th><th scope="col" class="r">Mills</th></tr></thead>
+              <tbody id="z-body"></tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+
+      <details class="field full options">
+        <summary>Options</summary>
+        <div class="options-body">
+          <label class="checkrow"><input type="checkbox" id="exempt" checked>
+            <span>Apply the Kansas residential exemption from the statewide 20-mill school levy</span></label>
+          <label class="exempt-amt" for="exempt-amt">Exempt appraised value: $<input type="text" id="exempt-amt" inputmode="numeric" value="75,000"></label>
+          <p class="hint">$75,000 since tax year 2024 (previously $40,000). It applies to the 20-mill statewide school levy only.</p>
+        </div>
+      </details>
+
+      <div class="field full actions">
+        <button type="submit" class="primary" id="go" disabled aria-describedby="go-hint">Show my estimate</button>
+        <span class="hint" id="go-hint" aria-live="polite"></span>
+      </div>
+    </form>
+  </section>
+  </main>
+
+  <!-- ================= page 2: results ================= -->
+  <main id="view-results" class="view" hidden>
+  <section class="panel youbar" aria-label="Your inputs">
+    <p class="yb-line" id="echo"></p>
+    <button type="button" class="ghost" id="back">&larr; Change inputs</button>
+  </section>
+
+  <section class="panel" id="out1" aria-labelledby="h-o1">
+    <p class="eyebrow">Step 2 of 2 &middot; Who levies your tax</p>
+    <div class="hero">
+      <div>
+        <h2 id="h-o1" tabindex="-1">Estimated annual property tax</h2>
+        <p class="bigsum num" id="total"></p>
+        <ul class="facts" id="facts"></ul>
+      </div>
+      <div>
+        <div class="stack" id="j-stack" role="img"></div>
+        <div class="tbl-wrap">
+          <table class="data">
+            <caption class="sr-only">Estimated tax by taxing jurisdiction</caption>
+            <thead><tr><th scope="col">Jurisdiction</th><th scope="col" class="r">Mills</th><th scope="col" class="r">Dollars</th><th scope="col" class="r">Share</th></tr></thead>
+            <tbody id="j-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="out2" aria-labelledby="h-o2">
+    <p class="eyebrow">What the County share pays for</p>
+    <h2 id="h-o2">Your County tax, by function</h2>
+    <p class="lede" id="o2-lede"></p>
+    <div class="seg" role="group" aria-label="County fund mix">
+      <button type="button" data-mix="rec2027" aria-pressed="true">2027 Recommended fund mix</button>
+      <button type="button" data-mix="levy2025" aria-pressed="false">2025 levy fund mix</button>
+    </div>
+    <div class="donut-wrap">
+      <svg class="donut" id="donut" viewBox="0 0 200 200" role="group" aria-label="Donut chart of your County tax by function. Select a slice to see its departments."></svg>
+      <div class="tbl-wrap">
+        <table class="data legend">
+          <caption class="sr-only">Your County tax by function</caption>
+          <thead><tr><th scope="col">Function</th><th scope="col" class="r">Dollars</th><th scope="col" class="r">Share</th></tr></thead>
+          <tbody id="fn-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="foot" id="f-foot"></p>
+    <h3 class="sub" id="h-dept">By department</h3>
+    <p class="lede">Each function's share, split across County departments. Select a function to expand it.</p>
+    <div id="dept"></div>
+    <p class="foot">Department amounts follow FY2027 Recommended General Fund appropriations (budget book &ldquo;Budget Summary by Fund,&rdquo; 2027 column); the WSU, Aging, Highway, and Bond &amp; Interest lines use their dedicated levy funds. Contingency Reserves ($46.75 million) are budget authority that is largely not expected to be spent.</p>
+    <div id="tip" role="tooltip" aria-hidden="true"></div>
+  </section>
+
+  <section class="panel notes" aria-labelledby="h-how">
+    <p class="eyebrow">Method</p>
+    <h2 id="h-how">How this is calculated</h2>
+    <ul>
+      <li><b>Assessed value</b> = market value &times; 11.5% (Kansas residential assessment rate).</li>
+      <li><b>Tax</b> = assessed value &times; total mills &divide; 1,000. A mill is $1 per $1,000 of assessed value.</li>
+      <li><b>School exemption.</b> Every school district rate on the levy sheet includes the 20.000-mill statewide school levy. Kansas exempts part of a home's appraised value from that 20-mill levy only (K.S.A. 79-201x; $75,000 since tax year 2024 under 2024 Special Session SB 1, previously $40,000). The tool subtracts value &times; 11.5% &times; 20 &divide; 1,000 for the exempt amount from the school district line. You can change or turn off the exemption under Options on the first page.</li>
+      <li><b>Tax units.</b> A tax unit is an area where the same set of taxing districts overlaps, so every home in it has the same rate. ZIP codes do not follow these lines; most ZIPs contain several tax units. The &ldquo;share of ZIP area&rdquo; is a share of land area, not of homes, so a large rural unit can lead the list even where most homes are in a city.</li>
+      <li><b>Rates.</b> Each unit's rate adds the 2025 levies (official County Clerk sheet, levied in November 2025 for 2026 budgets) of the State (1.500), Sedgwick County (27.567), County Fire District 1 (16.754, where it applies), the city, the school district (including any recreation commission), the township, and any library, cemetery, drainage, improvement, watershed, or hospital district. Computed totals match the sheet's published total for each city's main tax unit.</li>
+      <li><b>County functions.</b> The County dollars use the County rate in your tax unit. They are split across the five County levy funds and then by function. The default uses the 2027 Recommended Budget's fund mix (General Fund 23.156, WSU 1.500, Aging 0.330, Highways 0.855, Bond &amp; Interest 1.001; total 26.842 mills), scaled to the 2025 County rate. The General Fund share is split by the General Fund's 2027 &ldquo;Expenditures by Functional Area&rdquo; (2027 Budget Summary by Function, $363.9 million). The alternative uses the 2025 levy sheet's actual fund rates. County Fire District 1 is a separate taxing district and is shown under Fire, not here.</li>
+    </ul>
+    <h3>Caveats</h3>
+    <ul>
+      <li>This is an estimate, not a tax bill or an official County calculation. It is not affiliated with Sedgwick County.</li>
+      <li>It excludes special assessments, other exemptions and credits (for example, homestead refunds), appraisal differences, and changes in rates after 2025.</li>
+      <li>Districts with no 2025 levy line on the sheet (some drainage, improvement, and watershed districts and Jamesburg Park Cemetery) are counted as zero. TIF and transportation district areas use the regular rates.</li>
+      <li>General Fund spending by function includes interfund transfers, and spending is funded by sales tax, fees, and other revenue as well as property tax. The function split is a proportional allocation, not a tracing of your dollars.</li>
+    </ul>
+    <h3>Sources</h3>
+    <ul>
+      <li>Sedgwick County Clerk, 2025 Ad Valorem Tax Levies (received Nov 13, 2025).</li>
+      <li>Sedgwick County GIS tax unit (Taxes.gdb) and ZIP code polygons; ZIP-to-tax-unit overlay by area in an equal-area projection.</li>
+      <li>Sedgwick County 2027 Recommended Budget: County mill levy by fund (p. 47) and 2027 Budget Summary by Function and Operating Fund Type.</li>
+    </ul>
+  </section>
+  </main>
+
+  <footer class="pagefoot">
+    <p><b>Demo estimate.</b> Not a tax bill and not an official Sedgwick County calculation or website. Uses 2025 levy rates; the County function split defaults to the 2027 Recommended Budget fund mix.</p>
+  </footer>
+</div>
+
+<script id="data" type="application/json">{"units":{"0101":{"n":"0101 715 AFTON TWPU-264 AF","c":"","t":"Afton","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":7.447,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":115.868,"note":""},"0102":{"n":"0102 716 AFTON TWPU-264-CCW AF","c":"","t":"Afton","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":7.447,"fire":16.754,"other":1.324},"o":{"library":1.16,"watershed":0.164},"tot":116.032,"note":""},"0103":{"n":"0103 720 AFTON TWPU-265 AF","c":"","t":"Afton","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":7.447,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":109.348,"note":""},"0104":{"n":"0104 721 AFTON TWPU-265-CCW AF","c":"","t":"Afton","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":7.447,"fire":16.754,"other":1.324},"o":{"library":1.16,"watershed":0.164},"tot":109.512,"note":""},"0105":{"n":"0105 722 AFTON TWPU-265-CCW-MVLWID","c":"","t":"Afton","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":7.447,"fire":16.754,"other":9.402},"o":{"library":1.16,"improvement":8.078,"watershed":0.164},"tot":117.59,"note":""},"0106":{"n":"0106 725 AFTON TWPU-267 AF","c":"","t":"Afton","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":7.447,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":108.865,"note":""},"0107":{"n":"0107 726 AFTON TWPU-267-CCW AF","c":"","t":"Afton","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":7.447,"fire":16.754,"other":1.324},"o":{"library":1.16,"watershed":0.164},"tot":109.029,"note":""},"0108":{"n":"0108 727 AFTON TWPU-267-SCW AF","c":"","t":"Afton","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":7.447,"fire":16.754,"other":3.039},"o":{"library":1.16,"watershed":1.879},"tot":110.744,"note":""},"0110":{"n":"0110 730 AFTON TWPU-268 AF","c":"","t":"Afton","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":7.447,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":111.87,"note":""},"0111":{"n":"0111 731 AFTON TWPU-268-CCW AF","c":"","t":"Afton","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":7.447,"fire":16.754,"other":1.324},"o":{"library":1.16,"watershed":0.164},"tot":112.034,"note":""},"0112":{"n":"0112 732 AFTON TWPU-268-SCW AF","c":"","t":"Afton","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":7.447,"fire":16.754,"other":3.039},"o":{"library":1.16,"watershed":1.879},"tot":113.749,"note":""},"0201":{"n":"0201 635 ATTICA TWP U-265 AT","c":"","t":"Attica","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":6.51,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":108.411,"note":""},"0202":{"n":"0202 636 ATTICA TWP U-265-CCW AT","c":"","t":"Attica","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":6.51,"fire":16.754,"other":1.324},"o":{"library":1.16,"watershed":0.164},"tot":108.575,"note":""},"0204":{"n":"0204 645 ATTICA TWP U-266 AT","c":"","t":"Attica","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":6.51,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":114.172,"note":""},"0207":{"n":"0207 650 ATTICA TWP U-267-SMID AT","c":"","t":"Attica","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":6.51,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":107.928,"note":""},"0209":{"n":"0209 651 ATTICA TWP U-267 AT","c":"","t":"Attica","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":6.51,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":107.928,"note":""},"0211":{"n":"0211 639 ATTICA TWP U-265-RRID AT","c":"","t":"Attica","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":6.51,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":108.411,"note":""},"0306":{"n":"0306 615 DELANO TWP U-259 DE","c":"","t":"Delano","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":98.383,"note":"township Delano has no levy line (treated as 0)"},"0307":{"n":"0307 616 DELANO TWP U-259-JPC DE","c":"","t":"Delano","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":98.383,"note":"township Delano has no levy line (treated as 0)"},"0309":{"n":"0309 620 DELANO TWP U-265 DE","c":"","t":"Delano","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":101.901,"note":"township Delano has no levy line (treated as 0)"},"0311":{"n":"0311 625 DELANO TWP U-266 DE","c":"","t":"Delano","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":107.662,"note":"township Delano has no levy line (treated as 0)"},"0312":{"n":"0312 626 DELANO TWP U-266-JPC DE","c":"","t":"Delano","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":107.662,"note":"township Delano has no levy line (treated as 0)"},"0401":{"n":"0401 405 EAGLE TWPU-262-ED EA","c":"","t":"Eagle","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":123.883,"note":""},"0402":{"n":"0402 409 EAGLE TWPU-266-BAD EA","c":"","t":"Eagle","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":119.31,"note":""},"0404":{"n":"0404 411 EAGLE TWPU-266 EA","c":"","t":"Eagle","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":119.31,"note":""},"0405":{"n":"0405 414 EAGLE TWPU-267 EA","c":"","t":"Eagle","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":113.066,"note":""},"0409":{"n":"0409 416 EAGLE TWPU-267-MHW EA","c":"","t":"Eagle","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":113.066,"note":""},"0411":{"n":"0411 421 EAGLE TWPU-369-ED EA","c":"","t":"Eagle","u":"Burrton Jt. #369","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.045,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":119.674,"note":""},"0412":{"n":"0412 417 EAGLE TWPU-267T-73-BAD EA","c":"","t":"Eagle","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":113.066,"note":""},"0414":{"n":"0414 424 EAGLE TWPU-440 EA","c":"","t":"Eagle","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":0.0,"usd":64.115,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":122.744,"note":""},"0415":{"n":"0415 425 EAGLE TWPU-440-ED EA","c":"","t":"Eagle","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":0.0,"usd":64.115,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":122.744,"note":""},"0501":{"n":"0501 930 ERIE TWP U-268-NHD ER","c":"","t":"Erie","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":15.979,"fire":0.0,"other":1.16},"o":{"library":1.16},"tot":103.648,"note":""},"0502":{"n":"0502 940 ERIE TWP U-331-NHD ER","c":"","t":"Erie","u":"Kingman Jt. #331","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.362,"township":15.979,"fire":0.0,"other":1.16},"o":{"library":1.16},"tot":97.568,"note":""},"0601":{"n":"0601 655 GARDEN PLAIN TWP U-265 GP","c":"","t":"Garden Plain","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":8.281,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":110.182,"note":""},"0602":{"n":"0602 656 GARDEN PLAIN TWP U-265-CC","c":"","t":"Garden Plain","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":8.281,"fire":16.754,"other":1.324},"o":{"library":1.16,"watershed":0.164},"tot":110.346,"note":""},"0603":{"n":"0603 660 GARDEN PLAIN TWP U-267 GP","c":"","t":"Garden Plain","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":8.281,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":109.699,"note":""},"0604":{"n":"0604 661 GARDEN PLAIN TWP U-267-CC","c":"","t":"Garden Plain","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":8.281,"fire":16.754,"other":1.324},"o":{"library":1.16,"watershed":0.164},"tot":109.863,"note":""},"0605":{"n":"0605 662 GARDEN PLAIN TWP U-267-SC","c":"","t":"Garden Plain","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":8.281,"fire":16.754,"other":3.039},"o":{"library":1.16,"watershed":1.879},"tot":111.578,"note":""},"0701":{"n":"0701 675 GRAND RIVER TWP U-267 GR","c":"","t":"Grand River","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":13.736,"fire":1.818,"other":1.16},"o":{"library":1.16},"tot":100.218,"note":""},"0703":{"n":"0703 676 GRAND RIVER TWP U-267-SCW","c":"","t":"Grand River","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":13.736,"fire":1.818,"other":3.039},"o":{"library":1.16,"watershed":1.879},"tot":102.097,"note":""},"0704":{"n":"0704 685 GRAND RIVER TWP U-268 GR","c":"","t":"Grand River","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":13.736,"fire":1.818,"other":1.16},"o":{"library":1.16},"tot":103.223,"note":""},"0705":{"n":"0705 686 GRAND RIVER TWP U-268-SCW","c":"","t":"Grand River","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":13.736,"fire":1.818,"other":3.039},"o":{"library":1.16,"watershed":1.879},"tot":105.102,"note":""},"0707":{"n":"0707 677 GRAND RIVER TWP U-267-SCW","c":"","t":"Grand River","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":13.736,"fire":16.754,"other":3.039},"o":{"library":1.16,"watershed":1.879},"tot":117.033,"note":""},"0708":{"n":"0708 688 GRAND RIVER TWP U-268-CFD-SCW","c":"","t":"Grand River","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":13.736,"fire":16.754,"other":3.039},"o":{"library":1.16,"watershed":1.879},"tot":120.038,"note":""},"0709":{"n":"0709 678 GRAND RIVER TWP U-267-CFD","c":"","t":"Grand River","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":13.736,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":115.154,"note":""},"0710":{"n":"0710 689 GRAND RIVER TWP U-268-CFD","c":"","t":"Grand River","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":13.736,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":118.159,"note":""},"0801":{"n":"0801 365 GRANT TWPU-262GT","c":"","t":"Grant","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":12.339,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":124.574,"note":""},"0802":{"n":"0802 375 GRANT TWPU-439 GT","c":"","t":"Grant","u":"Sedgwick Jt. #439","m":{"state":1.5,"county":27.567,"city":0.0,"usd":66.911,"township":12.339,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":126.231,"note":""},"0803":{"n":"0803 366 GRANT TWPU-262-SVJD GT","c":"","t":"Grant","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":12.339,"fire":16.754,"other":2.48},"o":{"library":1.16,"drainage":1.32},"tot":125.894,"note":""},"0901":{"n":"0901 430 GREELEY TWP U-267-AW9 GRE","c":"","t":"Greeley","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":96.109,"note":""},"0905":{"n":"0905 447 GREELEY TWP U-369 GRE","c":"","t":"Greeley","u":"Burrton Jt. #369","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.045,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":102.717,"note":""},"0909":{"n":"0909 449 GREELEY TWP U-369-ED","c":"","t":"Greeley","u":"Burrton Jt. #369","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.045,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":102.717,"note":""},"0911":{"n":"0911 455 GREELEY TWP U-440-ED","c":"","t":"Greeley","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":0.0,"usd":64.115,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":105.787,"note":""},"0912":{"n":"0912 440 GREELEY TWP U-312T-73 GRE","c":"","t":"Greeley","u":"Haven Jt. #312","m":{"state":1.5,"county":27.567,"city":0.0,"usd":52.157,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":93.829,"note":""},"0913":{"n":"0913 441 GREELEY TWP U-312T-73-AW9","c":"","t":"Greeley","u":"Haven Jt. #312","m":{"state":1.5,"county":27.567,"city":0.0,"usd":52.157,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":93.829,"note":""},"0914":{"n":"0914 442 GREELEY TWP U-312T-73-MHW","c":"","t":"Greeley","u":"Haven Jt. #312","m":{"state":1.5,"county":27.567,"city":0.0,"usd":52.157,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":93.829,"note":""},"0915":{"n":"0915 443 GREELEY TWP U-312T-73-BAD","c":"","t":"Greeley","u":"Haven Jt. #312","m":{"state":1.5,"county":27.567,"city":0.0,"usd":52.157,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":93.829,"note":""},"0916":{"n":"0916 432 GREELEY TWP U-267T-73 GRE","c":"","t":"Greeley","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":96.109,"note":""},"0917":{"n":"0917 433 GREELEY TWP U-267T-73-BAD","c":"","t":"Greeley","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":96.109,"note":""},"0918":{"n":"0918 434 GREELEY TWP U-267T-73-MHW","c":"","t":"Greeley","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":96.109,"note":""},"0919":{"n":"0919 435 GREELEY TWP U-267-AW9-CFD","c":"","t":"Greeley","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":8.222,"fire":16.754,"other":1.349},"o":{"library":1.349},"tot":109.829,"note":""},"1001":{"n":"1001 795 GYPSUM TWP U-259-MWW GY","c":"","t":"Gypsum","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":5.667,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":104.05,"note":""},"1002":{"n":"1002 796 GYPSUM TWP U-259-SHID-MWW","c":"","t":"Gypsum","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":5.667,"fire":16.754,"other":2.523},"o":{"library":1.16,"improvement":1.363},"tot":105.413,"note":""},"1003":{"n":"1003 797 GYPSUM TWP U-259 GY","c":"","t":"Gypsum","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":5.667,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":104.05,"note":""},"1007":{"n":"1007 805 GYPSUM TWP U-260 GY","c":"","t":"Gypsum","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":5.667,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":117.667,"note":""},"1010":{"n":"1010 806 GYPSUM TWP U-260-MWW GY","c":"","t":"Gypsum","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":5.667,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":117.667,"note":""},"1011":{"n":"1011 815 GYPSUM TWP U-394 GY","c":"","t":"Gypsum","u":"Rose Hill Jt. #394","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.606,"township":5.667,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":114.254,"note":""},"1012":{"n":"1012 816 GYPSUM TWP U-394-MWW GY","c":"","t":"Gypsum","u":"Rose Hill Jt. #394","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.606,"township":5.667,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":114.254,"note":""},"1014":{"n":"1014 807 GYPSUM TWP U-260-PID GY","c":"","t":"Gypsum","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":5.667,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":117.667,"note":"Pawnee Industrial district (no levy line)"},"1015":{"n":"1015 808 GYPSUM TWP U-260 (EXCLUDE","c":"","t":"Gypsum","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":5.667,"fire":0.0,"other":1.16},"o":{"library":1.16},"tot":100.913,"note":""},"1101":{"n":"1101 735 ILLINOIS TWP U-264 IL","c":"","t":"Illinois","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":7.895,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":116.316,"note":""},"1102":{"n":"1102 740 ILLINOIS TWP U-265 IL","c":"","t":"Illinois","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":7.895,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":109.796,"note":""},"1103":{"n":"1103 741 ILLINOIS TWP U-265-CCW IL","c":"","t":"Illinois","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":7.895,"fire":16.754,"other":1.324},"o":{"library":1.16,"watershed":0.164},"tot":109.96,"note":""},"1104":{"n":"1104 736 ILLINOIS TWP U-264-K42 IL","c":"","t":"Illinois","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":7.895,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":116.316,"note":""},"1202":{"n":"1202 525 KECHI TWPU-259 KE","c":"","t":"Kechi","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":7.03,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":105.413,"note":""},"1206":{"n":"1206 530 KECHI TWPU-262 KE","c":"","t":"Kechi","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":7.03,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":119.265,"note":""},"1301":{"n":"1301 345 LINCOLN TWP U-206-WRW LI","c":"","t":"Lincoln","u":"Remington Jt. #206","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.902,"township":8.502,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":114.093,"note":""},"1302":{"n":"1302 350 LINCOLN TWP U-262 LI","c":"","t":"Lincoln","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":8.502,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":120.737,"note":""},"1303":{"n":"1303 351 LINCOLN TWP U-262-WRW LI","c":"","t":"Lincoln","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":8.502,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":121.445,"note":""},"1304":{"n":"1304 355 LINCOLN TWP U-375-WRW LI","c":"","t":"Lincoln","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":0.0,"usd":58.651,"township":8.502,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":114.842,"note":""},"1305":{"n":"1305 346 LINCOLN TWP U-206-WRW-FID","c":"","t":"Lincoln","u":"Remington Jt. #206","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.902,"township":8.502,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":114.093,"note":""},"1401":{"n":"1401 565 MINNEHA TWP U-259 MI","c":"","t":"Minneha","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":16.627,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":115.01,"note":""},"1403":{"n":"1403 567 MINNEHA TWP U-259-MWW MI","c":"","t":"Minneha","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":16.627,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":115.01,"note":""},"1404":{"n":"1404 568 MINNEHA TWP U-259-MWW-SHI","c":"","t":"Minneha","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":16.627,"fire":16.754,"other":2.523},"o":{"library":1.16,"improvement":1.363},"tot":116.373,"note":""},"1406":{"n":"1406 570 MINNEHA TWP U-259-MWW-BWI","c":"","t":"Minneha","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":16.627,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":115.01,"note":"Beech-Wichita Industrial district (no levy line)"},"1408":{"n":"1408 572 MINNEHA TWP U-259-MWW-SCC","c":"","t":"Minneha","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":16.627,"fire":16.754,"other":6.644},"o":{"library":1.16,"improvement":5.484},"tot":120.494,"note":""},"1412":{"n":"1412 600 MINNEHA TWP U-385-MWW MI","c":"","t":"Minneha","u":"Andover Jt. #385","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.341,"township":16.627,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":128.949,"note":""},"1413":{"n":"1413 601 MINNEHA TWP U-385-WRW MI","c":"","t":"Minneha","u":"Andover Jt. #385","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.341,"township":16.627,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":129.657,"note":""},"1414":{"n":"1414 602 MINNEHA TWP U-385-MWW-CRI","c":"","t":"Minneha","u":"Andover Jt. #385","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.341,"township":16.627,"fire":16.754,"other":2.288},"o":{"library":1.16,"improvement":1.128},"tot":130.077,"note":""},"1418":{"n":"1418 576 MINNEHA TWP U-259-PID MI","c":"","t":"Minneha","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":16.627,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":115.01,"note":"Pawnee Industrial district (no levy line)"},"1424":{"n":"1424 581 MINNEHA TWP U-259-BWID MI","c":"","t":"Minneha","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":16.627,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":115.01,"note":"Beech-Wichita Industrial district (no levy line)"},"1501":{"n":"1501 700 MORTON TWP U-267-SCW MO","c":"","t":"Morton","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":13.863,"fire":1.759,"other":2.011},"o":{"library":0.132,"watershed":1.879},"tot":101.137,"note":""},"1502":{"n":"1502 705 MORTON TWP U-268 MO","c":"","t":"Morton","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":13.863,"fire":1.759,"other":0.132},"o":{"library":0.132},"tot":102.263,"note":""},"1503":{"n":"1503 706 MORTON TWP U-268-SCW-CFD","c":"","t":"Morton","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":13.863,"fire":16.754,"other":2.011},"o":{"library":0.132,"watershed":1.879},"tot":119.137,"note":""},"1504":{"n":"1504 707 MORTON TWP U-268-SCW MO","c":"","t":"Morton","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":13.863,"fire":1.759,"other":2.011},"o":{"library":0.132,"watershed":1.879},"tot":104.142,"note":""},"1507":{"n":"1507 702 MORTON TWP U-267-SCW-CFD","c":"","t":"Morton","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":13.863,"fire":16.754,"other":2.011},"o":{"library":0.132,"watershed":1.879},"tot":116.132,"note":""},"1601":{"n":"1601 885 NINNESCAH TWPU-264-CCD NI","c":"","t":"Ninnescah","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":9.109,"fire":4.54,"other":3.639},"o":{"library":1.16,"cemetery":2.479},"tot":107.795,"note":""},"1602":{"n":"1602 886 NINNESCAH TWP U-264-CCD NI","c":"","t":"Ninnescah","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":9.109,"fire":4.54,"other":3.639},"o":{"library":1.16,"cemetery":2.479},"tot":107.795,"note":""},"1701":{"n":"1701 865 OHIO TWP U-261 OH","c":"","t":"Ohio","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":0.0,"usd":56.676,"township":9.404,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":113.061,"note":""},"1702":{"n":"1702 870 OHIO TWP U-263 OH","c":"","t":"Ohio","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.728,"township":9.404,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":118.113,"note":""},"1704":{"n":"1704 875 OHIO TWP U-264-CCD OH","c":"","t":"Ohio","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":9.404,"fire":16.754,"other":3.639},"o":{"library":1.16,"cemetery":2.479},"tot":120.304,"note":""},"1705":{"n":"1705 876 OHIO TWP U-264 OH","c":"","t":"Ohio","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":9.404,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":117.825,"note":""},"1706":{"n":"1706 871 OHIO TWP U-263-PID OH","c":"","t":"Ohio","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.728,"township":9.404,"fire":16.754,"other":39.122},"o":{"library":1.16,"improvement":37.962},"tot":156.075,"note":""},"1707":{"n":"1707 877 OHIO TWP U-264-CCD OH","c":"","t":"Ohio","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":9.404,"fire":16.754,"other":3.639},"o":{"library":1.16,"cemetery":2.479},"tot":120.304,"note":""},"1708":{"n":"1708 878 OHIO TWP U-264 OH","c":"","t":"Ohio","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":9.404,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":117.825,"note":""},"1801":{"n":"1801 505 PARK TWP U-259 PK","c":"","t":"Park","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":8.904,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":107.287,"note":""},"1802":{"n":"1802 510 PARK TWP U-262 PK","c":"","t":"Park","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":8.904,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":121.139,"note":""},"1804":{"n":"1804 515 PARK TWP U-266 PK","c":"","t":"Park","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":8.904,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":116.566,"note":""},"1805":{"n":"1805 516 PARK TWP U-266-PCPK","c":"","t":"Park","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":8.904,"fire":16.754,"other":1.703},"o":{"library":1.16,"cemetery":0.543},"tot":117.109,"note":""},"1901":{"n":"1901 545 PAYNE TWPU-259 PY","c":"","t":"Payne","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":12.134,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":110.517,"note":""},"1903":{"n":"1903 546 PAYNE TWPU-259-WRWPY","c":"","t":"Payne","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":12.134,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":111.225,"note":""},"1905":{"n":"1905 551 PAYNE TWPU-375-MWW PY","c":"","t":"Payne","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":0.0,"usd":58.651,"township":12.134,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":117.766,"note":""},"1906":{"n":"1906 552 PAYNE TWPU-375-WRW PY","c":"","t":"Payne","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":0.0,"usd":58.651,"township":12.134,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":118.474,"note":""},"1907":{"n":"1907 560 PAYNE TWPU-385-WRW PY","c":"","t":"Payne","u":"Andover Jt. #385","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.341,"township":12.134,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":125.164,"note":""},"1908":{"n":"1908 561 PAYNE TWPU-385-MWW PY","c":"","t":"Payne","u":"Andover Jt. #385","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.341,"township":12.134,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":124.456,"note":""},"2001":{"n":"2001 775 RIVERSIDE TWPU-259 (EXCLU","c":"","t":"Riverside","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":6.318,"fire":0.0,"other":1.16},"o":{"library":1.16},"tot":87.947,"note":""},"2002":{"n":"2002 776 RIVERSIDE TWPU-259-RD RI","c":"","t":"Riverside","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":6.318,"fire":16.754,"other":1.973},"o":{"library":1.16,"drainage":0.813},"tot":105.514,"note":""},"2003":{"n":"2003 780 RIVERSIDE TWPU-260 RI","c":"","t":"Riverside","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":6.318,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":118.318,"note":""},"2004":{"n":"2004 781 RIVERSIDE TWPU-260-OIDRI","c":"","t":"Riverside","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":6.318,"fire":16.754,"other":21.393},"o":{"library":1.16,"improvement":20.233},"tot":138.551,"note":""},"2005":{"n":"2005 782 RIVERSIDE TWPU-260-SVID R","c":"","t":"Riverside","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":6.318,"fire":16.754,"other":5.129},"o":{"library":1.16,"improvement":3.969},"tot":122.287,"note":""},"2006":{"n":"2006 790 RIVERSIDE TWPU-261 RI","c":"","t":"Riverside","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":0.0,"usd":56.676,"township":6.318,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":109.975,"note":""},"2008":{"n":"2008 791 RIVERSIDE TWPU-261-RDRI","c":"","t":"Riverside","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":0.0,"usd":56.676,"township":6.318,"fire":16.754,"other":1.973},"o":{"library":1.16,"drainage":0.813},"tot":110.788,"note":""},"2009":{"n":"2009 777 RIVERSIDE TWPU-259-PID RI","c":"","t":"Riverside","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":6.318,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":104.701,"note":"Pawnee Industrial district (no levy line)"},"2010":{"n":"2010 783 RIVERSIDE TWPU-260-BID RI","c":"","t":"Riverside","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":6.318,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":118.318,"note":"Aerospace Industrial district (no levy line)"},"2011":{"n":"2011 784 RIVERSIDE TWPU-260 (EXCLU","c":"","t":"Riverside","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":6.318,"fire":0.0,"other":1.16},"o":{"library":1.16},"tot":101.564,"note":""},"2101":{"n":"2101 825 ROCKFORD TWP U-260-EPCD R","c":"","t":"Rockford","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":9.093,"fire":16.754,"other":2.682},"o":{"library":1.16,"cemetery":1.522},"tot":122.615,"note":""},"2102":{"n":"2102 826 ROCKFORD TWP U-260-EPCD-M","c":"","t":"Rockford","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":9.093,"fire":16.754,"other":2.682},"o":{"library":1.16,"cemetery":1.522},"tot":122.615,"note":""},"2103":{"n":"2103 830 ROCKFORD TWP U-263-EPCD R","c":"","t":"Rockford","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.728,"township":9.093,"fire":16.754,"other":2.682},"o":{"library":1.16,"cemetery":1.522},"tot":119.324,"note":""},"2104":{"n":"2104 831 ROCKFORD TWP U-263-EPCD-M","c":"","t":"Rockford","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.728,"township":9.093,"fire":16.754,"other":2.682},"o":{"library":1.16,"cemetery":1.522},"tot":119.324,"note":""},"2105":{"n":"2105 835 ROCKFORD TWP U-394-EPCD R","c":"","t":"Rockford","u":"Rose Hill Jt. #394","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.606,"township":9.093,"fire":16.754,"other":2.682},"o":{"library":1.16,"cemetery":1.522},"tot":119.202,"note":""},"2106":{"n":"2106 836 ROCKFORD TWP U-394-EPCD-M","c":"","t":"Rockford","u":"Rose Hill Jt. #394","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.606,"township":9.093,"fire":16.754,"other":2.682},"o":{"library":1.16,"cemetery":1.522},"tot":119.202,"note":""},"2107":{"n":"2107 832 ROCKFORD TWP U-263-MLCD R","c":"","t":"Rockford","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.728,"township":9.093,"fire":16.754,"other":3.25},"o":{"library":1.16,"cemetery":2.09},"tot":119.892,"note":""},"2108":{"n":"2108 833 ROCKFORD TWP U-263-MLCD-M","c":"","t":"Rockford","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.728,"township":9.093,"fire":16.754,"other":3.25},"o":{"library":1.16,"cemetery":2.09},"tot":119.892,"note":""},"2201":{"n":"2201 845 SALEM TWPU-260-WCD SA","c":"","t":"Salem","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.019,"township":10.531,"fire":16.754,"other":1.365},"o":{"library":1.16,"cemetery":0.205},"tot":122.736,"note":""},"2202":{"n":"2202 850 SALEM TWPU-261-WCDSA","c":"","t":"Salem","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":0.0,"usd":56.676,"township":10.531,"fire":16.754,"other":1.365},"o":{"library":1.16,"cemetery":0.205},"tot":114.393,"note":""},"2205":{"n":"2205 855 SALEM TWPU-263-WCD SA","c":"","t":"Salem","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.728,"township":10.531,"fire":16.754,"other":1.365},"o":{"library":1.16,"cemetery":0.205},"tot":119.445,"note":""},"2206":{"n":"2206 856 SALEM TWPU-263-WCD-PID SA","c":"","t":"Salem","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.728,"township":10.531,"fire":16.754,"other":39.327},"o":{"library":1.16,"cemetery":0.205,"improvement":37.962},"tot":157.407,"note":""},"2301":{"n":"2301 460 SHERMAN TWP U-267-AW9 SH","c":"","t":"Sherman","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":4.685,"fire":16.754,"other":1.312},"o":{"library":1.312},"tot":106.255,"note":""},"2302":{"n":"2302 461 SHERMAN TWP U-267-SCW SH","c":"","t":"Sherman","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":4.685,"fire":16.754,"other":3.191},"o":{"library":1.312,"watershed":1.879},"tot":108.134,"note":""},"2303":{"n":"2303 462 SHERMAN TWP U-267 SH","c":"","t":"Sherman","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":4.685,"fire":16.754,"other":1.312},"o":{"library":1.312},"tot":106.255,"note":""},"2309":{"n":"2309 465 SHERMAN TWP U-267T-73-MHW","c":"","t":"Sherman","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":4.685,"fire":16.754,"other":1.312},"o":{"library":1.312},"tot":106.255,"note":""},"2401":{"n":"2401 485 UNION TWPU-266 UN","c":"","t":"Union","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":2.531,"fire":1.684,"other":0.852},"o":{"library":0.852},"tot":94.815,"note":""},"2402":{"n":"2402 486 UNION TWPU-266-PCUN","c":"","t":"Union","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":2.531,"fire":1.684,"other":1.395},"o":{"library":0.852,"cemetery":0.543},"tot":95.358,"note":""},"2403":{"n":"2403 495 UNION TWPU-267 UN","c":"","t":"Union","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":2.531,"fire":1.684,"other":0.852},"o":{"library":0.852},"tot":88.571,"note":""},"2406":{"n":"2406 496 UNION TWPU-267-SMID UN","c":"","t":"Union","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":2.531,"fire":1.684,"other":0.852},"o":{"library":0.852},"tot":88.571,"note":""},"2409":{"n":"2409 502 UNION TWPU-440-ED UN","c":"","t":"Union","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":0.0,"usd":64.115,"township":2.531,"fire":1.684,"other":0.852},"o":{"library":0.852},"tot":98.249,"note":""},"2410":{"n":"2410 487 UNION TWPU-266-PC-CFD","c":"","t":"Union","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":2.531,"fire":16.754,"other":1.395},"o":{"library":0.852,"cemetery":0.543},"tot":110.428,"note":""},"2415":{"n":"2415 500 UNION TWPU-267-SMID-CFD U","c":"","t":"Union","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":2.531,"fire":16.754,"other":0.852},"o":{"library":0.852},"tot":103.641,"note":""},"2420":{"n":"2420 503 UNION TWPU-267-CFDUN","c":"","t":"Union","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":2.531,"fire":16.754,"other":0.852},"o":{"library":0.852},"tot":103.641,"note":""},"2421":{"n":"2421 494 UNION TWPU-266-CFDUN","c":"","t":"Union","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":2.531,"fire":16.754,"other":0.852},"o":{"library":0.852},"tot":109.885,"note":""},"2501":{"n":"2501 385 VALLEY CENTER TWPU-262 VC","c":"","t":"Valley Center","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":13.255,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":125.49,"note":""},"2504":{"n":"2504 387 VALLEY CENTER TWPU-262-ED","c":"","t":"Valley Center","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":13.255,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":125.49,"note":""},"2505":{"n":"2505 388 VALLEY CENTER TWPU-262-HC","c":"","t":"Valley Center","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":13.255,"fire":16.754,"other":2.371},"o":{"library":1.16,"cemetery":1.211},"tot":126.701,"note":""},"2506":{"n":"2506 393 VALLEY CENTER TWPU-266-PC","c":"","t":"Valley Center","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":0.0,"usd":60.681,"township":13.255,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":120.917,"note":""},"2507":{"n":"2507 396 VALLEY CENTER TWPU-439 VC","c":"","t":"Valley Center","u":"Sedgwick Jt. #439","m":{"state":1.5,"county":27.567,"city":0.0,"usd":66.911,"township":13.255,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":127.147,"note":""},"2508":{"n":"2508 397 VALLEY CENTER TWPU-439-HC","c":"","t":"Valley Center","u":"Sedgwick Jt. #439","m":{"state":1.5,"county":27.567,"city":0.0,"usd":66.911,"township":13.255,"fire":16.754,"other":2.371},"o":{"library":1.16,"cemetery":1.211},"tot":128.358,"note":""},"2510":{"n":"2510 403 VALLEY CENTER TWPU-440 VC","c":"","t":"Valley Center","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":0.0,"usd":64.115,"township":13.255,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":124.351,"note":""},"2511":{"n":"2511 404 VALLEY CENTER TWPU-440-ED","c":"","t":"Valley Center","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":0.0,"usd":64.115,"township":13.255,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":124.351,"note":""},"2512":{"n":"2512 389 VALLEY CENTER TWPU-262-SV","c":"","t":"Valley Center","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":13.255,"fire":16.754,"other":2.48},"o":{"library":1.16,"drainage":1.32},"tot":126.81,"note":""},"2513":{"n":"2513 390 VALLEY CENTER TWPU-262-SV","c":"","t":"Valley Center","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":13.255,"fire":16.754,"other":3.691},"o":{"library":1.16,"cemetery":1.211,"drainage":1.32},"tot":128.021,"note":""},"2515":{"n":"2515 399 VALLEY CENTER TWPU-439-SV","c":"","t":"Valley Center","u":"Sedgwick Jt. #439","m":{"state":1.5,"county":27.567,"city":0.0,"usd":66.911,"township":13.255,"fire":16.754,"other":2.48},"o":{"library":1.16,"drainage":1.32},"tot":128.467,"note":""},"2516":{"n":"2516 400 VALLEY CENTER TWPU-439-SV","c":"","t":"Valley Center","u":"Sedgwick Jt. #439","m":{"state":1.5,"county":27.567,"city":0.0,"usd":66.911,"township":13.255,"fire":16.754,"other":3.691},"o":{"library":1.16,"cemetery":1.211,"drainage":1.32},"tot":129.678,"note":""},"2601":{"n":"2601 905 VIOLA TWPU-264 VI","c":"","t":"Viola","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":11.712,"fire":16.754,"other":0.336},"o":{"library":0.336},"tot":119.309,"note":""},"2603":{"n":"2603 906 VIOLA TWPU-264-CCW VI","c":"","t":"Viola","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":11.712,"fire":16.754,"other":0.5},"o":{"library":0.336,"watershed":0.164},"tot":119.473,"note":""},"2604":{"n":"2604 910 VIOLA TWPU-267 VI","c":"","t":"Viola","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":11.712,"fire":16.754,"other":0.336},"o":{"library":0.336},"tot":112.306,"note":""},"2607":{"n":"2607 911 VIOLA TWPU-267-CCW VI","c":"","t":"Viola","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.437,"township":11.712,"fire":16.754,"other":0.5},"o":{"library":0.336,"watershed":0.164},"tot":112.47,"note":""},"2608":{"n":"2608 915 VIOLA TWPU-268 VI","c":"","t":"Viola","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":0.0,"usd":57.442,"township":11.712,"fire":16.754,"other":0.336},"o":{"library":0.336},"tot":115.311,"note":""},"2609":{"n":"2609 925 VIOLA TWPU-356 VI","c":"","t":"Viola","u":"Conway Springs Jt. #356","m":{"state":1.5,"county":27.567,"city":0.0,"usd":55.539,"township":11.712,"fire":16.754,"other":0.336},"o":{"library":0.336},"tot":113.408,"note":""},"2701":{"n":"2701 755 WACO TWP U-259-GCD-CWID W","c":"","t":"Waco","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":3.872,"fire":16.754,"other":1.476},"o":{"library":1.16,"cemetery":0.316},"tot":102.571,"note":"Cessna Wallace Industrial district (no levy line)"},"2704":{"n":"2704 760 WACO TWP U-261-GCD WA","c":"","t":"Waco","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":0.0,"usd":56.676,"township":3.872,"fire":16.754,"other":1.476},"o":{"library":1.16,"cemetery":0.316},"tot":107.845,"note":""},"2706":{"n":"2706 765 WACO TWP U-264-GCD-CFD WA","c":"","t":"Waco","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":0.0,"usd":61.44,"township":3.872,"fire":16.754,"other":1.476},"o":{"library":1.16,"cemetery":0.316},"tot":112.609,"note":""},"2708":{"n":"2708 770 WACO TWP U-265-GCD WA","c":"","t":"Waco","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":0.0,"usd":54.92,"township":3.872,"fire":16.754,"other":1.476},"o":{"library":1.16,"cemetery":0.316},"tot":106.089,"note":""},"2712":{"n":"2712 761 WACO TWP U-261-GCD-CWID W","c":"","t":"Waco","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":0.0,"usd":56.676,"township":3.872,"fire":16.754,"other":1.476},"o":{"library":1.16,"cemetery":0.316},"tot":107.845,"note":"Cessna Wallace Industrial district (no levy line)"},"5101":{"n":"5101 100 ANDALE U-267-AW9 SHAN","c":"Andale","t":"Sherman","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":44.119,"usd":54.437,"township":0.218,"fire":16.754,"other":1.312},"o":{"library":1.312},"tot":145.907,"note":""},"5201":{"n":"5201 120 BENTLEY U-440-ED EABE","c":"Bentley","t":"Eagle","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":60.01,"usd":64.115,"township":2.243,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":173.349,"note":""},"5301":{"n":"5301 125 CHENEY U-268 MOCH","c":"Cheney","t":"Morton","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":56.651,"usd":57.442,"township":0.667,"fire":0.0,"other":0.0},"o":{},"tot":143.827,"note":""},"5302":{"n":"5302 126 CHENEY U-268 MOCH","c":"Cheney","t":"Grand River","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":56.651,"usd":57.442,"township":0.658,"fire":0.0,"other":0.0},"o":{},"tot":143.818,"note":""},"5401":{"n":"5401 130 CLEARWATER U-264-CCD NICL","c":"Clearwater","t":"Ninnescah","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":52.695,"usd":61.44,"township":0.839,"fire":0.0,"other":2.479},"o":{"cemetery":2.479},"tot":146.52,"note":""},"5501":{"n":"5501 135 COLWICH U-267 UNCO","c":"Colwich","t":"Union","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":45.499,"usd":54.437,"township":0.247,"fire":0.0,"other":0.0},"o":{},"tot":129.25,"note":""},"5502":{"n":"5501 135 COLWICH U-267 UNCO","c":"Colwich","t":"Union","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":45.499,"usd":60.681,"township":0.247,"fire":0.0,"other":0.0},"o":{},"tot":135.494,"note":""},"5601":{"n":"5601 140 DERBY U-260-EPCD RODY","c":"Derby","t":"","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":44.996,"usd":65.019,"township":0.0,"fire":0.0,"other":1.522},"o":{"cemetery":1.522},"tot":140.604,"note":""},"5602":{"n":"5602 141 DERBY U-260 RIDY","c":"Derby","t":"","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":44.996,"usd":65.019,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":139.082,"note":""},"5603":{"n":"5603 155 DERBY U-263-EPCDRODY","c":"Derby","t":"","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":44.996,"usd":61.728,"township":0.0,"fire":0.0,"other":1.522},"o":{"cemetery":1.522},"tot":137.313,"note":""},"5604":{"n":"5604 142 DERBY U-260-WCD SADY","c":"Derby","t":"","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":44.996,"usd":65.019,"township":0.0,"fire":0.0,"other":0.205},"o":{"cemetery":0.205},"tot":139.287,"note":""},"5701":{"n":"5701 165 EASTBOROUGH U-259 MIEB","c":"Eastborough","t":"Minneha","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":53.655,"usd":51.402,"township":1.572,"fire":0.0,"other":1.16},"o":{"library":1.16},"tot":136.856,"note":""},"5801":{"n":"5801 170 GARDEN PLAIN U-267-CCW GP","c":"Garden Plain","t":"Garden Plain","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":64.005,"usd":54.437,"township":0.54,"fire":16.754,"other":0.164},"o":{"watershed":0.164},"tot":164.967,"note":""},"5802":{"n":"A ROW, Name not in GRM yet","c":"Garden Plain","t":"Garden Plain","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":64.005,"usd":54.437,"township":0.54,"fire":16.754,"other":1.879},"o":{"watershed":1.879},"tot":166.682,"note":""},"5901":{"n":"5901 175 GODDARD U-265 ATGO-ILGO","c":"Goddard","t":"","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":39.299,"usd":54.92,"township":0.0,"fire":16.754,"other":0.0},"o":{},"tot":140.04,"note":""},"5902":{"n":"5902 176 GODDARD U-265-CCW GPGO-ATGO-ILGO","c":"Goddard","t":"","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":39.299,"usd":54.92,"township":0.0,"fire":16.754,"other":0.164},"o":{"watershed":0.164},"tot":140.204,"note":""},"6001":{"n":"6001 185 HAYSVILLE U-261 RIHV, OHHV","c":"Haysville","t":"","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":40.341,"usd":56.676,"township":0.0,"fire":16.754,"other":0.0},"o":{},"tot":142.838,"note":""},"6002":{"n":"6002 186 HAYSVILLE U-261-WCD SAHV","c":"Haysville","t":"","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":40.341,"usd":56.676,"township":0.0,"fire":16.754,"other":0.205},"o":{"cemetery":0.205},"tot":143.043,"note":""},"6003":{"n":"6003 187 HAYSVILLE U-261-GCDWAHV","c":"Haysville","t":"","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":40.341,"usd":56.676,"township":0.0,"fire":16.754,"other":0.316},"o":{"cemetery":0.316},"tot":143.154,"note":""},"6004":{"n":"6004 188 HAYSVILLE U-264OH","c":"Haysville","t":"","u":"Clearwater Jt. #264","m":{"state":1.5,"county":27.567,"city":40.341,"usd":61.44,"township":0.0,"fire":16.754,"other":0.0},"o":{},"tot":147.602,"note":""},"6101":{"n":"6101 195 KECHI U-259 KEKE","c":"Kechi","t":"Kechi","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":36.791,"usd":51.402,"township":0.836,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":136.01,"note":""},"6102":{"n":"6102 196 KECHI U-259 PYKE","c":"Kechi","t":"Payne","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":36.791,"usd":51.402,"township":1.715,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":136.889,"note":""},"6103":{"n":"6103 197 KECHI U-262","c":"Kechi","t":"Kechi","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":36.791,"usd":65.254,"township":0.836,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":149.862,"note":""},"6104":{"n":"6104 198 KECHI U-262 GT","c":"Kechi","t":"Grant","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":36.791,"usd":65.254,"township":0.855,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":149.881,"note":""},"6201":{"n":"6201 200 MAIZE U-266-PC-CFDPKMA","c":"Maize","t":"Park","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":42.89,"usd":60.681,"township":0.0,"fire":16.754,"other":1.703},"o":{"library":1.16,"cemetery":0.543},"tot":151.095,"note":""},"6203":{"n":"6203 202 MAIZE U-266-CFD UNMA","c":"Maize","t":"Union","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":42.89,"usd":60.681,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":150.552,"note":""},"6204":{"n":"6204 203 MAIZE U-266-CFD PKMA","c":"Maize","t":"Park","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":42.89,"usd":60.681,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":150.552,"note":""},"6205":{"n":"6205 204 MAIZE U-266-PC-CFD UNMA","c":"Maize","t":"Union","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":42.89,"usd":60.681,"township":0.0,"fire":16.754,"other":1.703},"o":{"library":1.16,"cemetery":0.543},"tot":151.095,"note":""},"6301":{"n":"6301 210 MT HOPE U-312T-73-MHW GRE","c":"Mount Hope","t":"Greeley","u":"Haven Jt. #312","m":{"state":1.5,"county":27.567,"city":72.025,"usd":52.157,"township":1.462,"fire":0.0,"other":0.0},"o":{},"tot":154.711,"note":""},"6302":{"n":"6302 211 MT HOPE U-312T-73 GREMH","c":"Mount Hope","t":"Greeley","u":"Haven Jt. #312","m":{"state":1.5,"county":27.567,"city":72.025,"usd":52.157,"township":1.462,"fire":0.0,"other":0.0},"o":{},"tot":154.711,"note":""},"6401":{"n":"6401 215 MULVANE U-263-MLCD ROMU","c":"Mulvane","t":"","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":57.266,"usd":61.728,"township":0.0,"fire":0.0,"other":2.09},"o":{"cemetery":2.09},"tot":150.151,"note":""},"6403":{"n":"6403 217 MULVANE U-263-WCD","c":"Mulvane","t":"","u":"Mulvane Jt. #263","m":{"state":1.5,"county":27.567,"city":57.266,"usd":61.728,"township":0.0,"fire":0.0,"other":0.205},"o":{"cemetery":0.205},"tot":148.266,"note":""},"6501":{"n":"6501 250 VALLEY CENTER U-262VCVC, G","c":"Valley Center","t":"","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":53.652,"usd":65.254,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":147.973,"note":""},"6503":{"n":"6503 252R VALLEY CENTER U-262-PRAIRIE LAKES","c":"Valley Center","t":"","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":53.652,"usd":65.254,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":147.973,"note":"TIF: PRAIRIE LAKES-VALLEY CENTER (no separate levy)"},"6512":{"n":"6512 260 VALLEY CENTER U-259 KEVC","c":"Valley Center","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":53.652,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":134.121,"note":""},"6601":{"n":"6601 265 VIOLA U-356 VIVI","c":"Viola","t":"Viola","u":"Conway Springs Jt. #356","m":{"state":1.5,"county":27.567,"city":21.918,"usd":55.539,"township":2.359,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":126.797,"note":""},"6702":{"n":"6702 001 WICHITA U-259","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":""},"6704":{"n":"6704 004 WICHITA U-259-GCD WA","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.316},"o":{"cemetery":0.316},"tot":113.125,"note":""},"6705":{"n":"6705 005 WICHITA U-259-JPC DE","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":""},"6707":{"n":"6707 006 WICHITA U-259-RD RI","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.813},"o":{"drainage":0.813},"tot":113.622,"note":""},"6708":{"n":"6708 035 WICHITA U-260 GY,RI","c":"Wichita","t":"","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":32.34,"usd":65.019,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":126.426,"note":""},"6709":{"n":"6709 040 WICHITA U-261 RI","c":"Wichita","t":"","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":32.34,"usd":56.676,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":118.083,"note":""},"6710":{"n":"6710 041 WICHITA U-261-RD RI","c":"Wichita","t":"","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":32.34,"usd":56.676,"township":0.0,"fire":0.0,"other":0.813},"o":{"drainage":0.813},"tot":118.896,"note":""},"6714":{"n":"6714 056 WICHITA U-265 AT,DE,IL","c":"Wichita","t":"","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":32.34,"usd":54.92,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":116.327,"note":""},"6718":{"n":"6718 090 WICHITA U-375 MI,PY","c":"Wichita","t":"","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":32.34,"usd":58.651,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":120.058,"note":""},"6719":{"n":"6719 071 WICHITA U-266AT,DE,PK","c":"Wichita","t":"","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":32.34,"usd":60.681,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":122.088,"note":""},"6720":{"n":"6720 072 WICHITA U-266-JPC DE","c":"Wichita","t":"","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":32.34,"usd":60.681,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":122.088,"note":""},"6721":{"n":"6721 050 WICHITA U-262 PK","c":"Wichita","t":"","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":32.34,"usd":65.254,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":126.661,"note":""},"6722":{"n":"6722 057 WICHITA U-265-GCD WA","c":"Wichita","t":"","u":"Goddard #265","m":{"state":1.5,"county":27.567,"city":32.34,"usd":54.92,"township":0.0,"fire":0.0,"other":0.316},"o":{"cemetery":0.316},"tot":116.643,"note":""},"6723":{"n":"6723 010 WICHITA U-259-MWWMI","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":""},"6724":{"n":"6724 042 WICHITA U-261-GCD WA","c":"Wichita","t":"","u":"Haysville #261","m":{"state":1.5,"county":27.567,"city":32.34,"usd":56.676,"township":0.0,"fire":0.0,"other":0.316},"o":{"cemetery":0.316},"tot":118.399,"note":""},"6729":{"n":"6729 029R WICHITA U-259-ICT21-NIC","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":25.624,"city":30.06,"usd":47.778,"township":0.0,"fire":0.0,"other":7.847},"o":{"nic":7.847},"tot":112.809,"note":"North Industrial Corridor split (tax unit 6787 table); TIF: ICT21 (no separate levy)"},"6730":{"n":"6730 054 WICHITA U-260-WCD SA","c":"Wichita","t":"","u":"Derby #260","m":{"state":1.5,"county":27.567,"city":32.34,"usd":65.019,"township":0.0,"fire":0.0,"other":0.205},"o":{"cemetery":0.205},"tot":126.631,"note":""},"6732":{"n":"6732 043R WICHITA U-259-DOUGLAS/HILLSIDE","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":"TIF: Douglas/Hillside (no separate levy)"},"6735":{"n":"6735 092 WICHITA U-375-MWW MI","c":"Wichita","t":"","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":32.34,"usd":58.651,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":120.058,"note":""},"6736":{"n":"6736 093 WICHITA U-375-WRW PY","c":"Wichita","t":"","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":32.34,"usd":58.651,"township":0.0,"fire":0.0,"other":0.708},"o":{"watershed":0.708},"tot":120.766,"note":""},"6737":{"n":"6737 055R WICHITA U259-RD RI-SOUTHFORK","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.813},"o":{"drainage":0.813},"tot":113.622,"note":"TIF: Southfork (no separate levy)"},"6738":{"n":"6738 075 WICHITA U-266-PC PK","c":"Wichita","t":"","u":"Maize #266","m":{"state":1.5,"county":27.567,"city":32.34,"usd":60.681,"township":0.0,"fire":0.0,"other":0.543},"o":{"cemetery":0.543},"tot":122.631,"note":""},"6741":{"n":"6741 017R WICHITA U-259-SSMID-UNION STATION","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":10.0},"o":{"improvement":10.0},"tot":122.809,"note":"TIF: Union Station (no separate levy)"},"6749":{"n":"6749 049R WICHITA U-259 RIVERSIDE","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":"TIF: Riverside Housing (no separate levy)"},"6753":{"n":"6753 076R WICHITA U-259-KEN MAR","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":"TIF: KenMar Redevelopment (no separate levy)"},"6755":{"n":"6755 015R WICHITA U-259-SSMID-NIC","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":25.624,"city":30.06,"usd":47.778,"township":0.0,"fire":0.0,"other":17.847},"o":{"improvement":10.0,"nic":7.847},"tot":122.809,"note":"North Industrial Corridor split (tax unit 6787 table)"},"6756":{"n":"6756 097 WICHITA U-267 UN","c":"Wichita","t":"","u":"Renwick Jt. #267","m":{"state":1.5,"county":27.567,"city":32.34,"usd":54.437,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":115.844,"note":""},"6761":{"n":"6761 024 WICHITA U-268-NHD","c":"Wichita","t":"","u":"Cheney Jt. #268","m":{"state":1.5,"county":27.567,"city":32.34,"usd":57.442,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":118.849,"note":""},"6765":{"n":"6765 045 WICHITA U-385-WRW","c":"Wichita","t":"","u":"Andover Jt. #385","m":{"state":1.5,"county":27.567,"city":32.34,"usd":65.341,"township":0.0,"fire":0.0,"other":0.708},"o":{"watershed":0.708},"tot":127.456,"note":""},"6767":{"n":"6767 070R WICHITA U-259-SSMID-CCS","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":10.0},"o":{"improvement":10.0},"tot":122.809,"note":"TIF: Center City South Arena (no separate levy)"},"6768":{"n":"6768 012 WICHITA U-259-SSMID","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":10.0},"o":{"improvement":10.0},"tot":122.809,"note":""},"6771":{"n":"6771 052R WICHITA U-259-WEST BANK","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":"TIF: West Bank (no separate levy)"},"6779":{"n":"6779 051R WICHITA U-259-EB","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":"TIF: East Bank (no separate levy)"},"6786":{"n":"6786 064R WICHITA U-259-SSMID-CCSEP","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":10.0},"o":{"improvement":10.0},"tot":122.809,"note":"TIF: Center City South Exploration Place (no separate levy)"},"6787":{"n":"6787 031R WICHITA U-259-NIC","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":25.624,"city":30.06,"usd":47.778,"township":0.0,"fire":0.0,"other":7.847},"o":{"nic":7.847},"tot":112.809,"note":"North Industrial Corridor split (tax unit 6787 table)"},"6791":{"n":"6791 085 WICHITA U-385-MWW MI","c":"Wichita","t":"","u":"Andover Jt. #385","m":{"state":1.5,"county":27.567,"city":32.34,"usd":65.341,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":126.748,"note":""},"6799":{"n":"6799 048R WICHITA U-259-EB-SSMID","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":10.0},"o":{"improvement":10.0},"tot":122.809,"note":"TIF: East Bank (no separate levy)"},"6801":{"n":"6801 245 SEDGWICK U-439-HCDVCSG","c":"Sedgwick","t":"Valley Center","u":"Sedgwick Jt. #439","m":{"state":1.5,"county":27.567,"city":74.463,"usd":66.911,"township":0.817,"fire":0.0,"other":1.211},"o":{"cemetery":1.211},"tot":172.469,"note":""},"6802":{"n":"6802 246 SEDGWICK U-439-SVLD-HCD V","c":"Sedgwick","t":"Valley Center","u":"Sedgwick Jt. #439","m":{"state":1.5,"county":27.567,"city":74.463,"usd":66.911,"township":0.817,"fire":0.0,"other":2.531},"o":{"cemetery":1.211,"drainage":1.32},"tot":173.789,"note":""},"6901":{"n":"6901 105 BEL AIRE U-259 KEBA PYBA","c":"Bel Aire","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":41.003,"usd":51.402,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":139.386,"note":""},"6903":{"n":"6903 107 BEL AIRE U-375PY","c":"Bel Aire","t":"","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":41.003,"usd":58.651,"township":0.0,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":146.635,"note":""},"6904":{"n":"6904 108 BEL AIRE U-375-WRW PY","c":"Bel Aire","t":"","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":41.003,"usd":58.651,"township":0.0,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":147.343,"note":""},"6905":{"n":"6905 109 BEL AIRE U-259-WRW","c":"Bel Aire","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":41.003,"usd":51.402,"township":0.0,"fire":16.754,"other":1.868},"o":{"library":1.16,"watershed":0.708},"tot":140.094,"note":""},"7001":{"n":"7001 230 PARK U-259 KEPC","c":"Park City","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":42.892,"usd":51.402,"township":0.0,"fire":16.754,"other":0.0},"o":{},"tot":140.115,"note":""},"7002":{"n":"7002 235 PARK U-262 KEPC","c":"Park City","t":"","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":42.892,"usd":65.254,"township":0.0,"fire":16.754,"other":0.0},"o":{},"tot":153.967,"note":""},"WAIT-01":{"n":"WAITING FOR CLERK APPROVAL","c":"","t":"Greeley","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":0.0,"usd":64.115,"township":8.222,"fire":3.034,"other":1.349},"o":{"library":1.349},"tot":105.787,"note":"new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-02":{"n":"WAITING FOR CLERK APPROVAL","c":"","t":"Union","u":"Halstead Jt. #440","m":{"state":1.5,"county":27.567,"city":0.0,"usd":64.115,"township":2.531,"fire":1.684,"other":0.852},"o":{"library":0.852},"tot":98.249,"note":"new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-03":{"n":"WAITING FOR CLERK APPROVAL","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":"Pawnee Industrial district (no levy line); new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-04":{"n":"WAITING FOR CLERK APPROVAL","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":"Beech-Wichita Industrial district (no levy line); new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-05":{"n":"WAITING FOR CLERK APPROVAL","c":"","t":"Riverside","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":6.318,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":104.701,"note":"new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-06":{"n":"WAITING FOR CLERK APPROVAL","c":"Wichita","t":"","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":32.34,"usd":51.402,"township":0.0,"fire":0.0,"other":0.0},"o":{},"tot":112.809,"note":"Beech-Wichita Industrial district (no levy line); new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-07":{"n":"WAITING FOR CLERK APPROVAL","c":"Wichita","t":"","u":"Andover Jt. #385","m":{"state":1.5,"county":27.567,"city":32.34,"usd":65.341,"township":0.0,"fire":0.0,"other":1.128},"o":{"improvement":1.128},"tot":127.876,"note":"new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-08":{"n":"WAITING FOR CLERK APPROVAL","c":"","t":"Eagle","u":"Valley Center Jt. #262","m":{"state":1.5,"county":27.567,"city":0.0,"usd":65.254,"township":11.648,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":123.883,"note":"new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-09":{"n":"WAITING FOR CLERK APPROVAL","c":"","t":"Minneha","u":"Circle Jt. #375","m":{"state":1.5,"county":27.567,"city":0.0,"usd":58.651,"township":16.627,"fire":16.754,"other":1.16},"o":{"library":1.16},"tot":122.259,"note":"new tax unit awaiting clerk approval; rate built from its districts"},"WAIT-10":{"n":"WAITING FOR CLERK APPROVAL","c":"","t":"Waco","u":"Wichita #259","m":{"state":1.5,"county":27.567,"city":0.0,"usd":51.402,"township":3.872,"fire":16.754,"other":1.476},"o":{"library":1.16,"cemetery":0.316},"tot":102.571,"note":"new tax unit awaiting clerk approval; rate built from its districts"}},"zips":{"67001":{"city":"Andale","edge":false,"units":[["2303",0.5358],["2301",0.2882],["0603",0.1444],["5101",0.0287]]},"67016":{"city":"Bentley","edge":false,"units":[["5201",0.9638],["0415",0.0362]]},"67017":{"city":"Benton","edge":true,"units":[["1301",0.6471],["1906",0.2623],["1304",0.0748],["1907",0.0157]]},"67020":{"city":"Burrton","edge":true,"units":[["0909",0.9566],["0911",0.0434]]},"67025":{"city":"Cheney","edge":true,"units":[["1502",0.3109],["0704",0.1509],["0501",0.1106],["0705",0.0838],["1504",0.0576],["1501",0.0415],["0107",0.0394],["0701",0.037],["0108",0.0336],["5301",0.0285],["0703",0.0238],["1503",0.0174],["2607",0.015],["0710",0.0138],["0707",0.0099],["2604",0.0087],["2608",0.005],["5302",0.0026],["0106",0.0025],["0110",0.0024],["0112",0.0018],["0708",0.001],["0709",0.0009],["0111",0.0008],["1507",0.0005]]},"67026":{"city":"Clearwater","edge":true,"units":[["1601",0.3706],["1704",0.261],["1101",0.1064],["2706",0.0707],["1102",0.0447],["2708",0.0345],["2704",0.0291],["5401",0.029],["2601",0.0243],["1707",0.023],["1104",0.0035],["1602",0.0034]]},"67030":{"city":"Colwich","edge":false,"units":[["2403",0.5221],["0412",0.1375],["0209",0.0995],["2401",0.0632],["2303",0.0456],["2420",0.0428],["5501",0.0315],["0405",0.0211],["2421",0.0085],["0409",0.0079],["0402",0.0067],["0603",0.0057],["0414",0.0034],["0404",0.0016],["WAIT-02",0.0015],["0207",0.0005],["2406",0.0004],["5502",0.0002],["2415",0.0001]]},"67031":{"city":"Conway Springs","edge":true,"units":[["2609",0.7266],["1601",0.1249],["2601",0.075],["0501",0.0729],["6601",0.0006]]},"67037":{"city":"Derby","edge":true,"units":[["1007",0.1917],["5601",0.1119],["2101",0.1104],["2103",0.1016],["5602",0.0874],["1012",0.0862],["1011",0.0853],["2106",0.0678],["2003",0.0363],["2104",0.0273],["2201",0.0268],["1001",0.0251],["2205",0.0132],["5603",0.0087],["6708",0.0072],["2105",0.0069],["2102",0.0023],["1003",0.0023],["2011",0.0011],["6403",0.0001]]},"67039":{"city":"Douglass","edge":true,"units":[["2108",1.0]]},"67050":{"city":"Garden Plain","edge":true,"units":[["0604",0.3284],["0107",0.2127],["0707",0.1179],["0703",0.1101],["0603",0.0657],["0605",0.0621],["1501",0.028],["5801",0.0244],["0705",0.0213],["0108",0.0164],["1507",0.0034],["2303",0.0034],["2302",0.0013],["0708",0.0005],["5802",0.0002]]},"67052":{"city":"Goddard","edge":false,"units":[["1102",0.1996],["0104",0.1401],["0209",0.1322],["0603",0.1184],["5901",0.1116],["0201",0.1002],["0602",0.0501],["1103",0.039],["0107",0.0311],["6714",0.0241],["0601",0.0121],["5902",0.011],["0604",0.008],["1101",0.006],["0103",0.0055],["0105",0.0039],["6756",0.003],["0202",0.0027],["0211",0.0011],["0204",0.0002]]},"67055":{"city":"Greenwich","edge":false,"units":[["1906",0.9909]]},"67060":{"city":"Haysville","edge":false,"units":[["2201",0.1815],["2202",0.1605],["2205",0.1171],["1701",0.1136],["1704",0.0864],["1705",0.0852],["6001",0.0747],["6002",0.0644],["2704",0.0608],["2706",0.044],["2006",0.0063],["6003",0.0048],["5604",0.0007],["6004",0.0]]},"67067":{"city":"Kechi","edge":false,"units":[["6101",0.4431],["1202",0.199],["6102",0.1635],["1901",0.1315],["6901",0.06]]},"67101":{"city":"Maize","edge":false,"units":[["6201",0.4199],["1805",0.2866],["2401",0.0899],["2402",0.0706],["6205",0.0702],["6203",0.0218],["6756",0.013],["6738",0.0076],["2410",0.0059],["2506",0.0048],["0404",0.0009],["2421",0.0008]]},"67106":{"city":"Milton","edge":true,"units":[["0501",0.7818],["0502",0.1784],["6761",0.0398]]},"67108":{"city":"Mount Hope","edge":true,"units":[["2301",0.3125],["0914",0.2815],["0912",0.0971],["0918",0.0688],["2309",0.0415],["0901",0.032],["0917",0.031],["2303",0.0277],["6301",0.0269],["0915",0.0198],["0412",0.0155],["0409",0.0114],["2403",0.0113],["0916",0.0068],["0405",0.0047],["0905",0.0047],["6302",0.0037],["0913",0.0017],["WAIT-01",0.0009],["0919",0.0]]},"67110":{"city":"Mulvane","edge":true,"units":[["2107",0.4715],["2205",0.3364],["6401",0.1023],["2108",0.0805],["6403",0.0047],["2103",0.0045]]},"67118":{"city":"Norwich","edge":true,"units":[["0501",0.568],["0502",0.432]]},"67120":{"city":"Peck","edge":true,"units":[["2205",0.5166],["1705",0.327],["1704",0.0834],["1702",0.0613],["1706",0.0055],["1708",0.0038],["2206",0.0018],["6403",0.0007]]},"67133":{"city":"Rose Hill","edge":true,"units":[["1012",0.6166],["2106",0.1978],["2108",0.1529],["1001",0.0327]]},"67135":{"city":"Sedgwick","edge":true,"units":[["0415",0.4186],["0801",0.1206],["2510",0.1185],["0414",0.082],["2516",0.0734],["2508",0.0583],["2507",0.0359],["0909",0.0169],["0911",0.0118],["2513",0.0109],["0411",0.0108],["0803",0.0104],["2515",0.0101],["2511",0.0055],["0802",0.0048],["6802",0.0037],["2501",0.0023],["0905",0.002],["6801",0.002],["0405",0.001],["5201",0.0004]]},"67147":{"city":"Valley Center","edge":true,"units":[["1301",0.2234],["0801",0.2074],["6501",0.0733],["1302",0.0646],["2501",0.0594],["2505",0.0495],["2513",0.0491],["1802",0.0491],["7002",0.0389],["1206",0.0282],["6104",0.0273],["0415",0.0239],["1303",0.0225],["1901",0.0178],["2504",0.0159],["2516",0.0078],["1906",0.0062],["1805",0.0044],["0401",0.004],["2508",0.0039],["6503",0.0037],["2507",0.0032],["6103",0.0032],["1903",0.0026],["1305",0.0025],["2512",0.0025],["6102",0.0013],["6101",0.0012],["2506",0.0009],["2515",0.0007],["WAIT-08",0.0005],["0803",0.0004],["0404",0.0003],["2409",0.0002],["WAIT-02",0.0]]},"67149":{"city":"Viola","edge":false,"units":[["2609",0.3192],["0107",0.1313],["1601",0.1265],["1101",0.1083],["2607",0.0902],["2601",0.0686],["2608",0.0384],["0104",0.0378],["2603",0.0227],["2604",0.0226],["1102",0.0154],["0103",0.0111],["6601",0.0031],["0102",0.0024],["0101",0.0024]]},"67202":{"city":"Wichita","edge":false,"units":[["6768",0.388],["6755",0.2244],["6799",0.144],["6767",0.1099],["6786",0.0439],["6702",0.04],["6787",0.0311],["6741",0.0188]]},"67203":{"city":"Wichita","edge":false,"units":[["6702",0.8917],["6787",0.0446],["6771",0.0261],["6779",0.0204],["6749",0.0147],["6768",0.0015],["6799",0.0008]]},"67204":{"city":"Wichita","edge":false,"units":[["6702",0.4996],["1802",0.1874],["6721",0.1097],["1206",0.0647],["7001",0.0528],["6501",0.0417],["1805",0.0168],["7002",0.0131],["1202",0.0106],["6512",0.0036]]},"67205":{"city":"Wichita","edge":false,"units":[["6719",0.2788],["6720",0.1989],["6738",0.1733],["1805",0.153],["1804",0.0963],["6204",0.0316],["6702",0.0253],["0312",0.013],["0311",0.0089],["1801",0.0059],["6721",0.0054],["6203",0.0046]]},"67206":{"city":"Wichita","edge":false,"units":[["6702",0.5322],["6723",0.2095],["6791",0.0754],["1424",0.0665],["1406",0.0413],["1403",0.0374],["1414",0.0125],["5701",0.0124],["1401",0.0063],["1412",0.0054],["WAIT-04",0.0006],["WAIT-07",0.0003]]},"67207":{"city":"Wichita","edge":false,"units":[["6702",0.3769],["6723",0.3585],["1014",0.0434],["1418",0.0389],["1403",0.0346],["1404",0.0341],["1406",0.0268],["1007",0.023],["1401",0.0216],["5701",0.0168],["1001",0.0109],["1424",0.0072],["6708",0.0061],["1002",0.0007],["WAIT-04",0.0003],["WAIT-06",0.0002]]},"67208":{"city":"Wichita","edge":false,"units":[["6702",0.9802],["5701",0.0128],["6732",0.0036],["6753",0.0033]]},"67209":{"city":"Wichita","edge":false,"units":[["6702",0.6086],["6714",0.2945],["6705",0.0848],["0309",0.0101]]},"67210":{"city":"Wichita","edge":false,"units":[["1007",0.2488],["2010",0.1732],["6702",0.1452],["6708",0.1318],["2003",0.0743],["1001",0.0639],["1003",0.0569],["1015",0.0298],["1010",0.028],["2004",0.0258],["2011",0.0149],["1002",0.0073]]},"67211":{"city":"Wichita","edge":false,"units":[["6702",1.0]]},"67212":{"city":"Wichita","edge":false,"units":[["6705",0.552],["6702",0.2309],["6720",0.1393],["0306",0.0302],["0307",0.0175],["0311",0.0168],["6719",0.0133]]},"67213":{"city":"Wichita","edge":false,"units":[["6702",0.9611],["6771",0.0241],["6704",0.0078],["6779",0.0057]]},"67214":{"city":"Wichita","edge":false,"units":[["6702",0.534],["6787",0.4437],["6729",0.0218],["6732",0.0005]]},"67215":{"city":"Wichita","edge":false,"units":[["2704",0.3917],["6704",0.1678],["6724",0.1387],["6722",0.1258],["2708",0.0705],["2706",0.0266],["1102",0.0241],["2701",0.0205],["6714",0.015],["WAIT-10",0.0068],["2712",0.0058]]},"67216":{"city":"Wichita","edge":false,"units":[["6707",0.3453],["6702",0.2104],["2006",0.0822],["6710",0.0761],["2004",0.0576],["2201",0.0455],["2003",0.0416],["6709",0.0363],["2008",0.0252],["6708",0.0233],["6730",0.0168],["2005",0.0145],["2002",0.011],["6737",0.0093],["6001",0.0023]]},"67217":{"city":"Wichita","edge":false,"units":[["6707",0.2411],["6702",0.1765],["6709",0.138],["6704",0.1162],["2704",0.1091],["6724",0.1044],["6001",0.0552],["2006",0.0457],["6710",0.0138]]},"67218":{"city":"Wichita","edge":false,"units":[["6702",0.9028],["2009",0.0705],["1401",0.0134],["1418",0.013],["WAIT-03",0.0003]]},"67219":{"city":"Wichita","edge":false,"units":[["7001",0.2627],["6702",0.2497],["6787",0.1911],["1202",0.1643],["7002",0.1014],["1206",0.0163],["6101",0.0086],["6729",0.0057]]},"67220":{"city":"Wichita","edge":false,"units":[["6702",0.7028],["6901",0.2815],["1202",0.0156]]},"67221":{"city":"Mcconnell","edge":false,"units":[["1015",0.519],["2011",0.3847],["2001",0.0682],["6702",0.0176],["WAIT-05",0.0001]]},"67223":{"city":"Wichita","edge":false,"units":[["0209",0.335],["2403",0.2743],["6203",0.1183],["2401",0.0725],["2421",0.0668],["6719",0.0542],["0204",0.0418],["2420",0.02],["6756",0.0172]]},"67226":{"city":"Wichita","edge":false,"units":[["1906",0.3319],["6702",0.1807],["6904",0.1087],["6736",0.1004],["6901",0.0735],["6735",0.0437],["6718",0.0435],["1907",0.0233],["6723",0.023],["1301",0.0213],["6903",0.0129],["6791",0.0095],["1901",0.0089],["6905",0.0075],["1903",0.0052],["1905",0.0051],["1412",0.0007]]},"67227":{"city":"Wichita","edge":false,"units":[["1102",0.9821],["6714",0.0179]]},"67228":{"city":"Wichita","edge":true,"units":[["1907",0.4635],["1906",0.3467],["6791",0.055],["1301",0.0461],["1413",0.0456],["6765",0.0263],["1412",0.0113],["1908",0.0055]]},"67230":{"city":"Wichita","edge":true,"units":[["6723",0.3684],["6791",0.2274],["1414",0.1252],["1403",0.1171],["1412",0.1146],["1001",0.0362],["1408",0.0108],["WAIT-07",0.0003]]},"67232":{"city":"Wichita","edge":true,"units":[["1001",0.9993]]},"67235":{"city":"Wichita","edge":false,"units":[["6714",0.5111],["6719",0.1591],["0201",0.135],["0204",0.091],["6756",0.0481],["1102",0.038],["0209",0.0171],["0309",0.0004]]},"67260":{"city":"Wichita","edge":false,"units":[["6702",1.0]]},"67543":{"city":"Haven","edge":true,"units":[["0912",1.0]]}},"depts":[{"f":"gf","fn":"General Government","d":"County Commission","s":0.0028827882636706906,"amt":1049018.0,"mg":false},{"f":"gf","fn":"General Government","d":"County Manager","s":0.006958497261736156,"amt":2532128.0,"mg":false},{"f":"gf","fn":"General Government","d":"County Counselor","s":0.00618198526125179,"amt":2249563.0,"mg":false},{"f":"gf","fn":"General Government","d":"County Clerk","s":0.004994239166663474,"amt":1817354.0,"mg":false},{"f":"gf","fn":"General Government","d":"Register of Deeds","s":0.004115924440937329,"amt":1497744.0,"mg":false},{"f":"gf","fn":"General Government","d":"Election Commissioner","s":0.007489803335162255,"amt":2725465.0,"mg":false},{"f":"gf","fn":"General Government","d":"Division of Human Resources","s":0.0068136155914035375,"amt":2479407.0,"mg":false},{"f":"gf","fn":"General Government","d":"Division of Finance","s":0.015079540699300549,"amt":5487295.0,"mg":false},{"f":"gf","fn":"General Government","d":"Budgeted Transfers","s":0.0210011231359212,"amt":7642100.0,"mg":false},{"f":"gf","fn":"General Government","d":"County Appraiser","s":0.0190033878968643,"amt":6915144.0,"mg":false},{"f":"gf","fn":"General Government","d":"County Treasurer","s":0.004785665182579237,"amt":1741456.0,"mg":false},{"f":"gf","fn":"General Government","d":"Metropolitan Area Planning (MAPD)","s":0.0024913101364114746,"amt":906563.0,"mg":false},{"f":"gf","fn":"General Government","d":"Facilities Department","s":0.04104906827601134,"amt":14937348.0,"mg":false},{"f":"gf","fn":"General Government","d":"Central Services","s":0.008207775677039512,"amt":2986728.0,"mg":false},{"f":"gf","fn":"General Government","d":"Information Technology","s":0.06557880110504365,"amt":23863474.0,"mg":false},{"f":"gf","fn":"General Government","d":"Contingency Reserves","s":0.12847286826975782,"amt":46750000.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"Office of the Medical Director","s":0.002119609960658942,"amt":771305.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"Emergency Communications","s":0.0328872515347781,"amt":11967344.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"Emergency Management","s":0.0038685997420836405,"amt":1407745.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"Emergency Medical Services","s":0.08111831314590834,"amt":29518148.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"Regional Forensic Science Center","s":0.01762081097999318,"amt":6412038.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"Department of Corrections","s":0.0487662864505489,"amt":17745567.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"District Attorney","s":0.049864024591031564,"amt":18145023.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"18th Judicial District","s":0.013632098037346236,"amt":4960585.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"Crime Prevention Fund","s":0.00022639530067737875,"amt":82383.0,"mg":false},{"f":"gf","fn":"Public Safety","d":"Sheriff's Office","s":0.25459421862419535,"amt":92644306.0,"mg":false},{"f":"gf","fn":"Public Works","d":"Stormwater Management","s":0.009485771557014931,"amt":3451778.0,"mg":false},{"f":"gf","fn":"Public Works","d":"Environmental Resources","s":0.00042669205953747646,"amt":155269.0,"mg":false},{"f":"gf","fn":"Public Works","d":"Highway Department","s":0.05937191546605084,"amt":21604850.0,"mg":true},{"f":"gf","fn":"Public Works","d":"Noxious Weeds","s":0.0019274063054791533,"amt":701364.0,"mg":false},{"f":"gf","fn":"Human Services","d":"COMCARE","s":0.011451950561925486,"amt":4167251.0,"mg":false},{"f":"gf","fn":"Human Services","d":"Health Department","s":0.019747431299731402,"amt":7185894.0,"mg":false},{"f":"gf","fn":"Human Services","d":"Aging and Disabilities","s":0.006986088012483287,"amt":2542168.0,"mg":true},{"f":"gf","fn":"Culture & Recreation","d":"Parks Department","s":0.0038357656494614574,"amt":1395797.0,"mg":false},{"f":"gf","fn":"Culture & Recreation","d":"Sedgwick County Zoo","s":0.02797751591248458,"amt":10180740.0,"mg":false},{"f":"gf","fn":"Culture & Recreation","d":"Community Programs (C&R)","s":0.0007193024139252256,"amt":261747.0,"mg":false},{"f":"gf","fn":"Culture & Recreation","d":"Exploration Place","s":0.0006247683675406337,"amt":227347.0,"mg":false},{"f":"gf","fn":"Community Development","d":"Child Advocacy Center (Community Programs)","s":0.0005990820381349134,"amt":218000.0,"mg":false},{"f":"gf","fn":"Community Development","d":"Extension Council","s":0.0019395583273719632,"amt":705786.0,"mg":false},{"f":"gf","fn":"Community Development","d":"Economic Development","s":0.004974153429889492,"amt":1810045.0,"mg":false},{"f":"gf","fn":"Community Development","d":"Community Programs (CD)","s":0.00012859653199322603,"amt":46795.0,"mg":false},{"f":"wsu","fn":"Community Development","d":"Wichita State University","s":1.0,"amt":13688711.0,"mg":false},{"f":"aging","fn":"Human Services","d":"Aging and Disabilities","s":1.0,"amt":3233626.0,"mg":true},{"f":"hwy","fn":"Public Works","d":"Highway Department","s":1.0,"amt":14661208.0,"mg":true},{"f":"bi","fn":"Debt service","d":"Debt service (Bond & Interest)","s":1.0,"amt":11894190.0,"mg":false}]}</script>
+<script id="calc">
+/* ---------------- pure calculation (also tested in node) ---------------- */
+var ASSESS = 0.115, SCHOOL_STATE_MILLS = 20;
+var JUR = [
+  ["state", "State of Kansas"], ["county", "Sedgwick County"], ["city", "City"],
+  ["usd", "School district (USD)"], ["township", "Township"], ["fire", "Fire district"], ["other", "Other districts"]
+];
+var COUNTY_FUNDS = {
+  rec2027:  { gf: 23.156, wsu: 1.500, aging: 0.330, hwy: 0.855, bi: 1.001 },
+  levy2025: { gf: 23.222, wsu: 1.500, aging: 0.330, hwy: 0.861, bi: 1.654 }
+};
+var GF_FUNCTION = [
+  ["General Government", 125580787], ["Public Safety", 183654443], ["Public Works", 25913261],
+  ["Human Services", 13895313], ["Culture & Recreation", 12065630], ["Community Development", 2780626]
+];
+function calcTax(value, unit, exemptValue) {
+  var av = value * ASSESS, m = unit.m, rows = [], gross = 0;
+  for (var i = 0; i < JUR.length; i++) {
+    var k = JUR[i][0], d = av * m[k] / 1000;
+    rows.push({ key: k, label: JUR[i][1], mills: m[k], gross: d, dollars: d });
+    gross += d;
+  }
+  var ex = Math.max(0, Math.min(exemptValue || 0, value));
+  var credit = ex * ASSESS * SCHOOL_STATE_MILLS / 1000;
+  var usd = rows[3]; credit = Math.min(credit, usd.gross); usd.dollars = usd.gross - credit;
+  var total = gross - credit;
+  rows.forEach(function (r) { r.share = total > 0 ? r.dollars / total : 0; });
+  var mills = 0; for (var j = 0; j < JUR.length; j++) mills += m[JUR[j][0]];
+  return { assessed: av, mills: mills, gross: gross, credit: credit, total: total, rows: rows };
+}
+function calcCounty(countyDollars, mix) {
+  var f = COUNTY_FUNDS[mix], tot = f.gf + f.wsu + f.aging + f.hwy + f.bi;
+  var gfTot = 0; GF_FUNCTION.forEach(function (x) { gfTot += x[1]; });
+  var gf = countyDollars * f.gf / tot;
+  var out = {};
+  GF_FUNCTION.forEach(function (x) { out[x[0]] = { gf: gf * x[1] / gfTot, fund: 0, fundName: "" }; });
+  out["Community Development"].fund = countyDollars * f.wsu / tot; out["Community Development"].fundName = "WSU fund";
+  out["Human Services"].fund = countyDollars * f.aging / tot;     out["Human Services"].fundName = "Aging fund";
+  out["Public Works"].fund = countyDollars * f.hwy / tot;         out["Public Works"].fundName = "Highways fund";
+  out["Debt service"] = { gf: 0, fund: countyDollars * f.bi / tot, fundName: "Bond & Interest fund" };
+  var rows = Object.keys(out).map(function (k) {
+    var o = out[k]; return { label: k, gf: o.gf, fund: o.fund, fundName: o.fundName, dollars: o.gf + o.fund };
+  });
+  rows.sort(function (a, b) { return b.dollars - a.dollars; });
+  return { rows: rows, fundMills: tot, scale: null };
+}
+var FN_COLOR = { "General Government": 1, "Public Safety": 2, "Public Works": 3, "Human Services": 4,
+  "Culture & Recreation": 5, "Community Development": 6, "Debt service": 7 };
+function calcDepts(countyDollars, mix, depts) {
+  var f = COUNTY_FUNDS[mix], tot = f.gf + f.wsu + f.aging + f.hwy + f.bi, by = {}, order = [];
+  depts.forEach(function (d) {
+    var dollars = countyDollars * f[d.f] / tot * d.s;
+    var g = by[d.fn] || (by[d.fn] = { fn: d.fn, dollars: 0, rows: {} });
+    var row = g.rows[d.d] || (g.rows[d.d] = { name: d.d, dollars: 0, merged: false });
+    row.dollars += dollars; row.merged = row.merged || d.mg; g.dollars += dollars;
+  });
+  Object.keys(by).forEach(function (k) {
+    var g = by[k];
+    g.rows = Object.keys(g.rows).map(function (n) { return g.rows[n]; }).sort(function (a, b) { return b.dollars - a.dollars; });
+    order.push(g);
+  });
+  order.sort(function (a, b) { return b.dollars - a.dollars; });
+  return order;
+}
+if (typeof module !== "undefined") module.exports = { calcTax: calcTax, calcCounty: calcCounty, calcDepts: calcDepts, COUNTY_FUNDS: COUNTY_FUNDS, GF_FUNCTION: GF_FUNCTION };
+</script>
+<script>
+(function () {
+  var D = JSON.parse(document.getElementById("data").textContent);
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt$ = function (x, d) { return "$" + x.toLocaleString("en-US", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); };
+  var fmtM = function (x) { return x.toFixed(3); };
+  var pct = function (x) { return (x * 100).toFixed(1) + "%"; };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var parseMoney = function (s) { var n = Number(String(s).replace(/[$,\s]/g, "")); return isFinite(n) ? n : NaN; };
+  var mix = "rec2027", curZip = null;
+  $("ziplist").innerHTML = Object.keys(D.zips).sort().map(function (z) { return '<option value="' + z + '">' + esc(D.zips[z].city) + "</option>"; }).join("");
+
+  function place(u) { return u.c ? u.c : (u.t ? u.t + " Twp." : "Unincorporated"); }
+  function unitLabel(code) { var u = D.units[code]; return place(u) + " · " + u.u; }
+
+  /* ---------------- page 1 ---------------- */
+  function setZip(z) {
+    curZip = z; var Z = D.zips[z], units = Z.units;   // sorted by area share, largest first
+    $("unit").innerHTML = units.map(function (x) {
+      return '<option value="' + x[0] + '">' + x[0] + " · " + fmtM(D.units[x[0]].tot) + " mills · " + pct(x[1]) + " of ZIP · " + esc(unitLabel(x[0])) + "</option>";
+    }).join("");
+    $("unit").value = units[0][0];
+    var ms = units.map(function (x) { return D.units[x[0]].tot; });
+    var mn = Math.min.apply(null, ms), mx = Math.max.apply(null, ms);
+    $("z-n").textContent = units.length; $("z-min").textContent = fmtM(mn); $("z-max").textContent = fmtM(mx);
+    $("z-sum").textContent = "All " + units.length + " tax unit" + (units.length > 1 ? "s" : "") + " in " + z;
+    $("z-cap").textContent = "Tax units in ZIP " + z;
+    var msg = units.length > 1
+      ? z + " (" + Z.city + ") spans " + units.length + " tax units, from " + fmtM(mn) + " to " + fmtM(mx) + " mills."
+      : z + " (" + Z.city + ") lies in a single tax unit.";
+    if (Z.edge) msg += " Part of this ZIP may extend into a neighboring county; only the Sedgwick County part is covered.";
+    $("z-callout").textContent = msg;
+  }
+  function renderZipTable() {
+    if (!curZip) return;
+    var sel = $("unit").value;
+    $("z-body").innerHTML = D.zips[curZip].units.map(function (x) {
+      var u = D.units[x[0]];
+      return "<tr" + (x[0] === sel ? ' class="sel"' : "") + "><td>" + x[0] + '<span class="subt">' + esc(u.n) + "</span></td>" +
+        '<td class="hide-sm">' + esc(u.c || (u.t ? u.t + " Twp." : "—")) + '</td><td class="hide-sm">' + esc(u.u) + "</td>" +
+        '<td class="r">' + pct(x[1]) + '</td><td class="r">' + fmtM(u.tot) + "</td></tr>";
+    }).join("");
+  }
+  function state() {
+    var v = parseMoney($("value").value), z = $("zip").value.trim();
+    return { v: v, z: z, vOk: v > 0 && v < 1e9, zOk: !!D.zips[z] };
+  }
+  function validate(touched) {
+    var s = state();
+    var vMsg = s.vOk ? "" : "Enter a home value in dollars, like 200,000.";
+    var zMsg = s.zOk ? "" : (s.z.length === 5 ? "That ZIP code isn't in Sedgwick County's ZIP map." : "Enter a 5-digit ZIP code in Sedgwick County.");
+    var showV = touched === "value" || touched === "all" || ($("value").value !== "" && !s.vOk);
+    var showZ = touched === "all" || s.z.length === 5;
+    $("value").setAttribute("aria-invalid", String(!s.vOk && showV));
+    $("value-err").textContent = showV ? vMsg : "";
+    $("zip").setAttribute("aria-invalid", String(!s.zOk && showZ));
+    $("zip-err").textContent = showZ ? zMsg : "";
+    if (s.zOk && s.z !== curZip) setZip(s.z);
+    if (!s.zOk) curZip = null;
+    $("unit-field").hidden = !s.zOk;
+    renderZipTable();
+    var ok = s.vOk && s.zOk;
+    $("go").disabled = !ok;
+    $("go-hint").textContent = ok ? "" : (!s.vOk && !s.zOk ? "Enter a home value and ZIP code." : (!s.vOk ? "Enter a home value." : "Enter a Sedgwick County ZIP code."));
+    return ok;
+  }
+
+  /* ---------------- page 2 ---------------- */
+  function renderResults() {
+    var s = state(), v = s.v, code = $("unit").value, u = D.units[code], Z = D.zips[s.z];
+    var exOn = $("exempt").checked, exAmt = exOn ? parseMoney($("exempt-amt").value) || 0 : 0;
+    var r = calcTax(v, u, exAmt);
+    $("echo").innerHTML = "<b>" + fmt$(v) + "</b> home &middot; ZIP <b>" + esc(s.z) + "</b> " + esc(Z.city) +
+      " &middot; tax unit <b>" + code + "</b> (" + esc(unitLabel(code)) + ")" +
+      (exOn ? "" : " &middot; no school exemption");
+    $("total").textContent = fmt$(r.total);
+    $("facts").innerHTML =
+      "<li><span>Assessed value (11.5%)</span><b>" + fmt$(r.assessed) + "</b></li>" +
+      "<li><span>Total rate</span><b>" + fmtM(r.mills) + " mills</b></li>" +
+      "<li><span>Before school exemption</span><b>" + fmt$(r.gross) + "</b></li>" +
+      "<li><span>School levy exemption</span><b>−" + fmt$(r.credit) + "</b></li>" +
+      "<li><span>Effective rate on market value</span><b>" + (r.total / v * 100).toFixed(2) + "%</b></li>" +
+      "<li><span>Per month</span><b>" + fmt$(r.total / 12) + "</b></li>";
+    var rows = r.rows.filter(function (x) { return x.mills > 0; });
+    var other = Object.keys(u.o).map(function (k) { return { library: "library", cemetery: "cemetery", drainage: "drainage", improvement: "improvement district", watershed: "watershed", hospital: "hospital", nic: "North Industrial Corridor" }[k]; }).join(", ");
+    var name = function (x) {
+      if (x.key === "city" && u.c) return "City of " + u.c;
+      if (x.key === "usd") return u.u;
+      if (x.key === "township" && u.t) return u.t + " Township";
+      if (x.key === "fire") return u.m.fire >= 16.754 ? "County Fire District 1" : "Township fire levy";
+      return x.label;
+    };
+    var sub = function (x) {
+      if (x.key === "usd" && r.credit > 0) return "after " + fmt$(r.credit) + " school exemption";
+      if (x.key === "other" && other) return other;
+      return "";
+    };
+    $("j-stack").setAttribute("aria-label", "Share of tax by jurisdiction: " + rows.map(function (x) { return name(x) + " " + pct(x.share); }).join(", "));
+    $("j-stack").innerHTML = rows.map(function (x) {
+      return '<div style="width:' + (x.share * 100) + "%;background:var(--j-" + x.key + ')"></div>';
+    }).join("");
+    $("j-body").innerHTML = rows.map(function (x) {
+      var st = sub(x);
+      return '<tr><td><span class="sw" aria-hidden="true" style="background:var(--j-' + x.key + ')"></span>' + esc(name(x)) +
+        (st ? '<span class="subt">' + esc(st) + "</span>" : "") + '</td><td class="r">' + fmtM(x.mills) +
+        '</td><td class="r">' + fmt$(x.dollars) + '</td><td class="r">' + pct(x.share) + "</td></tr>";
+    }).join("") + '<tr class="total"><td>Total</td><td class="r">' + fmtM(r.mills) + '</td><td class="r">' + fmt$(r.total) + '</td><td class="r">100.0%</td></tr>';
+
+    var cty = r.rows[1];
+    $("o2-lede").textContent = "Your County share is " + fmt$(cty.dollars) + " (" + fmtM(cty.mills) + " mills). " +
+      (mix === "rec2027"
+        ? "Split using the 2027 Recommended Budget's levy fund mix (26.842 mills), scaled to the 2025 County rate of " + fmtM(cty.mills) + " mills."
+        : "Split using the 2025 levy sheet's fund rates (General 23.222, Highways 0.861, WSU 1.500, Aging 0.330, Bond & Interest 1.654).");
+    renderCounty(cty.dollars);
+    $("f-foot").textContent = (u.m.fire >= 16.754 ? "County Fire District 1 (16.754 mills, " + fmt$(r.rows[5].dollars) + " for this home) is a separate taxing district and is not included here." : "");
+  }
+
+  /* ---------------- County donut + departments ---------------- */
+  var openFns = null;   // which function sections are open (kept across re-renders)
+  var slug = function (t) { return "fn-" + t.toLowerCase().replace(/[^a-z]+/g, "-"); };
+  var dol = function (x) { return x < 1 ? "<$1" : fmt$(Math.round(x)); };
+  function arc(cx, cy, r0, r1, a0, a1) {
+    var p = function (r, a) { return (cx + r * Math.sin(a)).toFixed(2) + "," + (cy - r * Math.cos(a)).toFixed(2); };
+    var big = a1 - a0 > Math.PI ? 1 : 0;
+    return "M" + p(r1, a0) + "A" + r1 + "," + r1 + " 0 " + big + " 1 " + p(r1, a1) + "L" + p(r0, a1) +
+           "A" + r0 + "," + r0 + " 0 " + big + " 0 " + p(r0, a0) + "Z";
+  }
+  function goFn(fn) {
+    var d = $(slug(fn)); if (!d) return;
+    d.open = true; openFns[fn] = true;
+    d.scrollIntoView({ behavior: "smooth", block: "start" });
+    d.querySelector("summary").focus({ preventScroll: true });
+  }
+  function tip(on, fn, amt, share, x, y) {
+    var t = $("tip");
+    if (!on) { t.classList.remove("on"); return; }
+    t.innerHTML = "<b>" + esc(fn) + "</b><span>" + fmt$(Math.round(amt)) + " \u00b7 " + pct(share) + "</span>";
+    t.classList.add("on");
+    var w = t.offsetWidth, h = t.offsetHeight;
+    t.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 12)) + "px";
+    t.style.top = Math.max(8, y - h - 12) + "px";
+  }
+  function hot(fn, on) {
+    Array.prototype.forEach.call(document.querySelectorAll("#out2 [data-fn]"), function (el) {
+      el.classList.toggle("hot", !!on && el.getAttribute("data-fn") === fn);
+    });
+  }
+  function renderCounty(countyDollars) {
+    var groups = calcDepts(countyDollars, mix, D.depts);
+    var total = 0; groups.forEach(function (g) { total += g.dollars; });
+    var svg = "", a = 0;
+    groups.forEach(function (g) {
+      var sh = g.dollars / total, a1 = a + sh * 2 * Math.PI;
+      var path = groups.length === 1 ? arc(100, 100, 56, 92, 0, 2 * Math.PI - 1e-4) : arc(100, 100, 56, 92, a, Math.max(a1, a + 0.004));
+      svg += '<path d="' + path + '" fill="var(--f-' + FN_COLOR[g.fn] + ')" data-fn="' + esc(g.fn) + '" data-amt="' + g.dollars +
+        '" data-share="' + sh + '" tabindex="0" role="button" aria-label="' + esc(g.fn) + ": " + fmt$(Math.round(g.dollars)) + ", " + pct(sh) + '. Show departments."></path>';
+      a = a1;
+    });
+    svg += '<text class="c1" x="100" y="103" text-anchor="middle" aria-hidden="true">' + fmt$(Math.round(total)) + "</text>" +
+           '<text class="c2" x="100" y="121" text-anchor="middle" aria-hidden="true">County share</text>';
+    $("donut").innerHTML = svg;
+    $("fn-body").innerHTML = groups.map(function (g) {
+      return '<tr data-fn="' + esc(g.fn) + '"><td><span class="sw" aria-hidden="true" style="background:var(--f-' + FN_COLOR[g.fn] + ')"></span>' +
+        '<a href="#' + slug(g.fn) + '" data-go="' + esc(g.fn) + '">' + esc(g.fn) + '</a></td><td class="r">' + fmt$(Math.round(g.dollars)) +
+        '</td><td class="r">' + pct(g.dollars / total) + "</td></tr>";
+    }).join("") + '<tr class="total"><td>Total</td><td class="r">' + fmt$(Math.round(total)) + '</td><td class="r">100.0%</td></tr>';
+    if (!openFns) { openFns = {}; openFns[groups[0].fn] = true; }
+    var maxD = 0; groups.forEach(function (g) { g.rows.forEach(function (x) { if (x.dollars > maxD) maxD = x.dollars; }); });
+    $("dept").innerHTML = groups.map(function (g) {
+      var c = "var(--f-" + FN_COLOR[g.fn] + ")";
+      return '<details class="fn" id="' + slug(g.fn) + '" data-fnname="' + esc(g.fn) + '"' + (openFns[g.fn] ? " open" : "") + "><summary>" +
+        '<span class="sw" aria-hidden="true" style="background:' + c + '"></span><span>' + esc(g.fn) + '</span><span class="amt">' + dol(g.dollars) + "</span></summary>" +
+        '<ul class="dlist">' + g.rows.map(function (x) {
+          return '<li class="drow"><span class="dn">' + esc(x.name) + (x.merged ? "<small>(General Fund + dedicated levy)</small>" : "") +
+            '</span><span class="da">' + dol(x.dollars) + '</span><span class="dt" aria-hidden="true"><div style="width:' +
+            Math.max(0.5, x.dollars / maxD * 100) + "%;background:" + c + '"></div></span></li>';
+        }).join("") + "</ul></details>";
+    }).join("");
+    Array.prototype.forEach.call(document.querySelectorAll("#dept details.fn"), function (d) {
+      d.addEventListener("toggle", function () { openFns[d.getAttribute("data-fnname")] = d.open; });
+    });
+  }
+  (function wireDonut() {
+    var svg = $("donut");
+    var info = function (t) { return [t.getAttribute("data-fn"), +t.getAttribute("data-amt"), +t.getAttribute("data-share")]; };
+    svg.addEventListener("mousemove", function (e) {
+      var t = e.target.closest("path"); if (!t) { tip(false); hot(null, false); return; }
+      var i = info(t); hot(i[0], true); tip(true, i[0], i[1], i[2], e.clientX, e.clientY);
+    });
+    svg.addEventListener("mouseleave", function () { tip(false); hot(null, false); });
+    svg.addEventListener("focusin", function (e) {
+      var t = e.target.closest("path"); if (!t) return;
+      var r = t.getBoundingClientRect(), i = info(t);
+      hot(i[0], true); tip(true, i[0], i[1], i[2], r.left + r.width / 2, r.top + r.height / 2);
+    });
+    svg.addEventListener("focusout", function () { tip(false); hot(null, false); });
+    svg.addEventListener("click", function (e) { var t = e.target.closest("path"); if (t) { tip(false); goFn(t.getAttribute("data-fn")); } });
+    svg.addEventListener("keydown", function (e) {
+      var t = e.target.closest("path"); if (!t) return;
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tip(false); goFn(t.getAttribute("data-fn")); }
+    });
+    $("fn-body").addEventListener("click", function (e) {
+      var tr = e.target.closest("tr[data-fn]"); if (tr) { e.preventDefault(); goFn(tr.getAttribute("data-fn")); }
+    });
+    $("fn-body").addEventListener("mouseover", function (e) { var tr = e.target.closest("tr[data-fn]"); hot(tr ? tr.getAttribute("data-fn") : null, !!tr); });
+    $("fn-body").addEventListener("mouseleave", function () { hot(null, false); });
+  })();
+
+  /* ---------------- view switching + history ---------------- */
+  function show(view, focus) {
+    var res = view === "results";
+    $("view-input").hidden = res; $("view-results").hidden = !res;
+    document.title = res ? "Your estimate · What You Pay" : "What You Pay";
+    window.scrollTo(0, 0);
+    if (focus) (res ? $("h-o1") : $("h-in")).focus();
+  }
+  function goResults() {
+    if (!validate("all")) return;
+    renderResults();
+    if (!(history.state && history.state.view === "results")) history.pushState({ view: "results" }, "", "#results");
+    show("results", true);
+  }
+  function goInput(fromPop) {
+    if (!fromPop && history.state && history.state.view === "results") { history.back(); return; } // popstate does the rest
+    show("input", true); validate();
+  }
+  window.addEventListener("popstate", function (e) {
+    if (e.state && e.state.view === "results" && validate()) { renderResults(); show("results", true); }
+    else goInput(true);
+  });
+
+  $("form").addEventListener("submit", function (e) { e.preventDefault(); goResults(); });
+  $("back").addEventListener("click", function () { goInput(false); });
+  $("value").addEventListener("input", function () { validate(); });
+  $("zip").addEventListener("input", function () { validate(); });
+  $("value").addEventListener("blur", function () { var v = parseMoney(this.value); if (v > 0) this.value = v.toLocaleString("en-US"); validate("value"); });
+  $("unit").addEventListener("change", renderZipTable);
+  Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (b) {
+    b.addEventListener("click", function () {
+      mix = b.getAttribute("data-mix");
+      Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      renderResults();
+    });
+  });
+  history.replaceState({ view: "input" }, "", location.pathname + location.search);
+  validate();
+  show("input", false);
+  // test hook (headless render of page 2): ?view=results
+  if (/[?&]view=results/.test(location.search)) goResults();
+})();
+</script>
+</body>
+</html>
